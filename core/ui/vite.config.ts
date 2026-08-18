@@ -10,15 +10,16 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] }),
     tsconfigPaths(),
-    dts({ include: ["src"] }),
+    dts({ include: ["src"], tsconfigPath: "./tsconfig.app.json" }),
+    babel({ presets: [reactCompilerPreset()] }),
   ],
   build: {
     lib: {
       entry: "src/index.tsx",
       name: "ui",
-      fileName: (format) => `ui.${format}.js`,
+      fileName: "index",
+      // fileName: (format) => `ui.${format}.js`,
     },
     rolldownOptions: {
       external: ["react", "react-dom"],
