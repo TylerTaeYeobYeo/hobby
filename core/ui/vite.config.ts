@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 // plugins
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { esmExternalRequirePlugin } from "rolldown/plugins";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -22,7 +23,16 @@ export default defineConfig({
       // fileName: (format) => `ui.${format}.js`,
     },
     rolldownOptions: {
-      external: ["react", "react-dom"],
+      plugins: [
+        esmExternalRequirePlugin({
+          external: [
+            "react",
+            "react-dom",
+            "react/jsx-runtime",
+            "react/jsx-dev-runtime",
+          ],
+        }),
+      ],
       output: {
         globals: {
           react: "React",
