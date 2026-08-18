@@ -1,5 +1,5 @@
 {
-  "name": "sudoku",
+  "name": "@app/sudoku",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "@core/ui": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

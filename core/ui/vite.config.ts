@@ -1,10 +1,19 @@
+import { defineConfig } from "vite";
+
+// plugins
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+    tsconfigPaths(),
+    dts({ include: ["src"] }),
+  ],
   build: {
     lib: {
       entry: "src/index.tsx",
