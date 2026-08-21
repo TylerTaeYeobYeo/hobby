@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 
 export type BoardProps = {
   board: number[][];
@@ -6,6 +6,7 @@ export type BoardProps = {
   given?: boolean[][];
   status?: "playing" | "paused" | "completed";
   hoveredNumber?: number | null;
+  hintNumber?: number | null;
   selected?: { row: number; col: number } | null;
   onSelectCell?: (row: number, col: number) => void;
   onCellChange?: (
@@ -47,6 +48,7 @@ export const BoardCell = ({
   isGiven,
   isSelected,
   isHighlighted,
+  hintNumber,
   onSelect,
   onChange,
 }: {
@@ -55,6 +57,7 @@ export const BoardCell = ({
   isGiven?: boolean;
   isSelected?: boolean;
   isHighlighted?: boolean;
+  hintNumber?: number | null;
   onSelect?: () => void;
   onChange?: (newValue: number, newMemo?: string[]) => void;
 }) => {
@@ -71,11 +74,33 @@ export const BoardCell = ({
         ? "bg-sky-200"
         : "bg-white";
 
+  const handleCellClick = () => {
+    onSelect?.();
+    if (hintNumber && !isGiven && value === 0) {
+      onChange?.(hintNumber, memo);
+    }
+  };
+
+  const handleCellRightClick = (e: MouseEvent) => {
+    e.preventDefault();
+    if (isGiven) return;
+
+    if (hintNumber && value === 0) {
+      const newMemo = memo?.includes(hintNumber.toString())
+        ? memo.filter((m) => m !== hintNumber.toString())
+        : [...(memo || []), hintNumber.toString()];
+      onChange?.(value, newMemo);
+      return;
+    }
+
+    setShowMemoPopup({ x: e.clientX, y: e.clientY });
+  };
+
   return (
     <div
       className={`border border-gray-300 w-12 h-12 flex flex-col items-center justify-center relative ${bgClass}`}
-      onContextMenu={(e) => e.preventDefault()}
-      onClick={() => onSelect?.()}
+      onContextMenu={handleCellRightClick}
+      onClick={handleCellClick}
     >
       {isGiven ? (
         <span className="font-bold text-gray-800 select-none">{value}</span>
@@ -92,10 +117,6 @@ export const BoardCell = ({
             } else if (e.target.value === "") {
               onChange?.(0, memo);
             }
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            setShowMemoPopup({ x: e.clientX, y: e.clientY });
           }}
         />
       )}
@@ -150,6 +171,7 @@ export const Board = ({
   given,
   status,
   hoveredNumber,
+  hintNumber,
   selected,
   onSelectCell,
   onCellChange,
@@ -157,27 +179,54 @@ export const Board = ({
   if (status === "paused") {
     return <div>Game paused</div>;
   }
+
+  const CELL_SIZE = 48; // px, matches w-12/h-12
+  const DIVIDER_SIZE = 6; // px
+
+  const trackSizes = Array.from({ length: 11 }, (_, i) =>
+    i === 3 || i === 7 ? `${DIVIDER_SIZE}px` : `${CELL_SIZE}px`,
+  ).join(" ");
+
+  const trackPosition = (i: number) => i + 1 + Math.floor(i / 3);
+
+  const displayedNumber = hintNumber ?? hoveredNumber;
+
   return (
-    <div className="grid grid-cols-9 gap-1">
+    <div
+      className="bg-gray-300"
+      style={{
+        display: "grid",
+        gridTemplateColumns: trackSizes,
+        gridTemplateRows: trackSizes,
+      }}
+    >
       {board?.map((row, rowIndex) =>
         row?.map((cell, colIndex) => (
-          <BoardCell
+          <div
             key={`${rowIndex}-${colIndex}`}
-            value={cell}
-            memo={memo?.[rowIndex]?.[colIndex]}
-            isGiven={given?.[rowIndex]?.[colIndex]}
-            isSelected={
-              selected?.row === rowIndex && selected?.col === colIndex
-            }
-            isHighlighted={
-              !!hoveredNumber &&
-              shouldHighlight(board, rowIndex, colIndex, hoveredNumber)
-            }
-            onSelect={() => onSelectCell?.(rowIndex, colIndex)}
-            onChange={(newValue, newMemo) => {
-              onCellChange?.(rowIndex, colIndex, newValue, newMemo);
+            style={{
+              gridColumn: trackPosition(colIndex),
+              gridRow: trackPosition(rowIndex),
             }}
-          />
+          >
+            <BoardCell
+              value={cell}
+              memo={memo?.[rowIndex]?.[colIndex]}
+              isGiven={given?.[rowIndex]?.[colIndex]}
+              isSelected={
+                selected?.row === rowIndex && selected?.col === colIndex
+              }
+              isHighlighted={
+                !!displayedNumber &&
+                shouldHighlight(board, rowIndex, colIndex, displayedNumber)
+              }
+              hintNumber={hintNumber}
+              onSelect={() => onSelectCell?.(rowIndex, colIndex)}
+              onChange={(newValue, newMemo) => {
+                onCellChange?.(rowIndex, colIndex, newValue, newMemo);
+              }}
+            />
+          </div>
         )),
       )}
     </div>

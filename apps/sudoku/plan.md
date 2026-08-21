@@ -60,3 +60,33 @@
 ## Polish
 
 - [x] Verify no TypeScript/lint errors across changed files
+
+## Hint Coins Feature
+
+- [x] Determine coin count per difficulty (easy: 3, medium: 2, hard: 1) and initialize on new game start (persist in saved game state for Load Game)
+- [x] Add "Hint" button next to `NumberHintBar` showing remaining coin count, disabled when 0 remain or game not playing
+- [x] Clicking Hint reveals one random cell that currently has no value (empty, non-given) by setting it to the solution value and clearing its memo
+- [x] Decrement remaining coins on each hint use
+- [x] Persist hint coins in `sudokuGameState` localStorage save/load
+
+## Hint Bar Number Graying
+
+- [x] In `NumberHintBar`, compute per-number completion (all 9 placed on board) and gray out / disable hover highlight for completed numbers
+
+## Board Block Dividers
+
+- [x] Add visual divider lines between each 3x3 box in `Board` (thicker, centered, light gray, single continuous lines using a dedicated CSS Grid divider track)
+
+## Hint Mode Feature
+
+- [x] `NumberHintBar`: clicking a number toggles "hint mode" for that number (visually indicated as active); clicking again or clicking outside the board exits hint mode
+- [x] While in hint mode, the row/column/box highlight for that number stays displayed regardless of hover
+- [x] `Board`/`BoardCell`: left-click on an empty, non-given cell while in hint mode fills it with the hint-mode number
+- [x] `Board`/`BoardCell`: right-click on an empty, non-given cell while in hint mode toggles a memo of that number instead of opening the memo popup
+- [x] Clicking outside the board container exits hint mode (document click-outside listener)
+
+## Win Detection Fix
+
+- [x] Fixed win detection: previously compared filled board to the exact generated `solution` array, which failed for alternate valid solutions; now validates the board is full and satisfies Sudoku rules (no duplicates in any row/column/box)
+- [x] Guarded against duplicate completion triggers (e.g. rapid updates) with a `hasCompletedRef`
+- [x] Completion `Dialog` now shows a clear congratulations message, final time, and the player's rank on the difficulty's leaderboard

@@ -9,13 +9,53 @@ import { Timer } from "../components/timer";
 import { addHighScore, formatTime } from "../util/highscore";
 import { generateSudoku, type Level } from "../util/sudoku-generator";
 
-const isBoardComplete = (board: number[][], solution: number[][]) => {
+const isBoardFull = (board: number[][]) => {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      if (board[r][c] !== solution[r][c]) return false;
+      if (board[r][c] === 0) return false;
     }
   }
   return true;
+};
+
+const isBoardValid = (board: number[][]) => {
+  const isValidGroup = (values: number[]) => {
+    const seen = new Set<number>();
+    for (const value of values) {
+      if (value < 1 || value > 9 || seen.has(value)) return false;
+      seen.add(value);
+    }
+    return true;
+  };
+
+  for (let i = 0; i < 9; i++) {
+    const row = board[i];
+    const col = board.map((r) => r[i]);
+    if (!isValidGroup(row) || !isValidGroup(col)) return false;
+  }
+
+  for (let boxRow = 0; boxRow < 9; boxRow += 3) {
+    for (let boxCol = 0; boxCol < 9; boxCol += 3) {
+      const box: number[] = [];
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          box.push(board[r][c]);
+        }
+      }
+      if (!isValidGroup(box)) return false;
+    }
+  }
+
+  return true;
+};
+
+const isBoardComplete = (board: number[][]) =>
+  isBoardFull(board) && isBoardValid(board);
+
+const HINT_COINS_BY_DIFFICULTY: Record<Level, number> = {
+  easy: 3,
+  medium: 2,
+  hard: 1,
 };
 
 export const Game = () => {
@@ -42,14 +82,17 @@ export const Game = () => {
     col: number;
   } | null>(null);
   const [hoveredNumber, setHoveredNumber] = useState<number | null>(null);
+  const [hintModeNumber, setHintModeNumber] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<Level>(
     () => (query[0].get("difficulty") as Level) ?? "medium",
   );
+  const [hintCoins, setHintCoins] = useState<number>(0);
   const [finalTime, setFinalTime] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
 
   const isNew = query[0].get("isNew") ?? true;
   const startTimeRef = useRef<number | undefined>(undefined);
+  const boardContainerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<{
     getTime: () => number;
     pause: () => void;
@@ -70,6 +113,7 @@ export const Game = () => {
             Array.from({ length: 9 }, () => []),
           ),
         });
+        setHintCoins(HINT_COINS_BY_DIFFICULTY[level]);
         setIsLoading(false);
         break;
       }
@@ -78,13 +122,17 @@ export const Game = () => {
 
         if (savedGameState) {
           const parsedState = JSON.parse(savedGameState);
-          setDifficulty(parsedState.difficulty ?? "medium");
+          const level: Level = parsedState.difficulty ?? "medium";
+          setDifficulty(level);
           setGameState({
             board: parsedState.board,
             solution: parsedState.solution,
             given: parsedState.given,
             memo: parsedState.memo,
           });
+          setHintCoins(
+            parsedState.hintCoins ?? HINT_COINS_BY_DIFFICULTY[level],
+          );
           startTimeRef.current = parsedState.startTime ?? 0;
         } else {
           const level = "medium" as Level;
@@ -99,6 +147,7 @@ export const Game = () => {
               Array.from({ length: 9 }, () => []),
             ),
           });
+          setHintCoins(HINT_COINS_BY_DIFFICULTY[level]);
         }
         break;
       }
@@ -107,6 +156,8 @@ export const Game = () => {
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const hasCompletedRef = useRef(false);
 
   const handleCellChange = (
     row: number,
@@ -131,7 +182,8 @@ export const Game = () => {
         memo: newMemoState,
       };
 
-      if (isBoardComplete(newBoard, prevState.solution)) {
+      if (!hasCompletedRef.current && isBoardComplete(newBoard)) {
+        hasCompletedRef.current = true;
         timerRef.current?.pause();
         const time = timerRef.current?.getTime() ?? 0;
         const { rank: earnedRank } = addHighScore(difficulty, time);
@@ -162,11 +214,47 @@ export const Game = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, status, gameState]);
 
+  useEffect(() => {
+    if (!hintModeNumber) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        boardContainerRef.current &&
+        !boardContainerRef.current.contains(e.target as Node)
+      ) {
+        setHintModeNumber(null);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick, true);
+    return () =>
+      document.removeEventListener("click", handleOutsideClick, true);
+  }, [hintModeNumber]);
+
   const handleErase = () => {
     if (!selected) return;
     const { row, col } = selected;
     if (gameState.given[row]?.[col]) return;
     handleCellChange(row, col, 0, []);
+  };
+
+  const handleHint = () => {
+    if (hintCoins <= 0 || status !== "playing") return;
+
+    const emptyCells: { row: number; col: number }[] = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (gameState.board[r][c] === 0) {
+          emptyCells.push({ row: r, col: c });
+        }
+      }
+    }
+    if (emptyCells.length === 0) return;
+
+    const { row, col } =
+      emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    const revealedValue = gameState.solution[row][col];
+    setHintCoins((prev) => prev - 1);
+    handleCellChange(row, col, revealedValue, []);
   };
 
   if (isLoading) {
@@ -212,6 +300,7 @@ export const Game = () => {
                   JSON.stringify({
                     startTime: currentTime,
                     difficulty,
+                    hintCoins,
                     ...gameState,
                   }),
                 );
@@ -224,22 +313,45 @@ export const Game = () => {
         </div>
       </div>
       {/* board */}
-      <div className="flex justify-center items-center mt-4">
+      <div
+        className="flex justify-center items-center mt-4"
+        ref={boardContainerRef}
+      >
         <Board
           board={gameState.board}
           memo={gameState.memo}
           given={gameState.given}
           status={status === "completed" ? "playing" : status}
           hoveredNumber={hoveredNumber}
+          hintNumber={hintModeNumber}
           selected={selected}
           onSelectCell={(row, col) => setSelected({ row, col })}
           onCellChange={handleCellChange}
         />
       </div>
-      {status !== "paused" && <NumberHintBar onHover={setHoveredNumber} />}
+      {status !== "paused" && (
+        <div className="flex flex-col items-center gap-2">
+          <NumberHintBar
+            board={gameState.board}
+            activeNumber={hintModeNumber}
+            onHover={setHoveredNumber}
+            onClickNumber={(num) =>
+              setHintModeNumber((prev) => (prev === num ? null : num))
+            }
+          />
+          <Button
+            variant="secondary"
+            onClick={handleHint}
+            disabled={status !== "playing" || hintCoins <= 0}
+          >
+            💡 Hint ({hintCoins})
+          </Button>
+        </div>
+      )}
 
-      <Dialog open={status === "completed"} title="🎉 Puzzle Complete!">
+      <Dialog open={status === "completed"} title="🎉 Congratulations!">
         <div className="flex flex-col gap-3 min-w-56">
+          <p>You solved the puzzle!</p>
           <p>
             Your time:{" "}
             <span className="font-bold">
@@ -248,7 +360,8 @@ export const Game = () => {
           </p>
           {rank !== null && (
             <p>
-              Rank: <span className="font-bold">#{rank}</span> ({difficulty})
+              You ranked <span className="font-bold">#{rank}</span> on the{" "}
+              {difficulty} leaderboard!
             </p>
           )}
           <Button onClick={() => navigate("/")}>Back to Menu</Button>
