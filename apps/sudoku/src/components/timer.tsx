@@ -1,3 +1,4 @@
+import { useTheme } from "@core/ui";
 import {
   forwardRef,
   useCallback,
@@ -17,6 +18,8 @@ export const Timer = forwardRef<
   const divRef = useRef<HTMLDivElement>(null);
   const elapsedTimeRef = useRef<number>(startTime);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { theme } = useTheme();
+  const isNeu = theme === "neumorphism";
 
   const resume = useCallback(() => {
     intervalRef.current = setInterval(() => {
@@ -54,7 +57,11 @@ export const Timer = forwardRef<
   return (
     <div
       ref={divRef}
-      className="text-xl font-mono font-semibold text-gray-800 bg-white/30 border border-white/40 backdrop-blur-md rounded-xl px-4 py-2 shadow-md"
+      className={`text-xl font-mono font-semibold text-gray-800 rounded-xl px-4 py-2 ${
+        isNeu
+          ? "bg-gray-200 shadow-[6px_6px_12px_rgba(0,0,0,0.15),-6px_-6px_12px_rgba(255,255,255,0.7)]"
+          : "bg-white/30 border border-white/40 backdrop-blur-md shadow-md"
+      }`}
     >
       {startTime.toFixed(2)} seconds
     </div>

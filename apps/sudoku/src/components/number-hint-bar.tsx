@@ -1,3 +1,5 @@
+import { useTheme } from "@core/ui";
+
 export type NumberHintBarProps = {
   board?: number[][];
   activeNumber?: number | null;
@@ -24,20 +26,35 @@ export const NumberHintBar = ({
   onHover,
   onClickNumber,
 }: NumberHintBarProps) => {
+  const { theme } = useTheme();
+  const isNeu = theme === "neumorphism";
+
   return (
-    <div className="flex justify-center gap-2 mt-4 rounded-2xl border border-white/40 bg-white/20 p-2 backdrop-blur-md shadow-lg">
+    <div
+      className={`flex justify-center gap-2 mt-4 rounded-2xl p-2 ${
+        isNeu
+          ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.7)]"
+          : "border border-white/40 bg-white/20 backdrop-blur-md shadow-lg"
+      }`}
+    >
       {NUMS.map((num) => {
         const complete = isNumberComplete(board, num);
         const isActive = activeNumber === num;
+        const neuClasses = complete
+          ? "text-gray-400 bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)] cursor-default"
+          : isActive
+            ? "bg-blue-400 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.3)] cursor-pointer"
+            : "bg-gray-200 text-gray-800 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-3px_-3px_6px_rgba(255,255,255,0.7)] hover:brightness-105 cursor-pointer";
+        const glassClasses = complete
+          ? "text-gray-400 bg-gray-200/30 border-white/20 cursor-default"
+          : isActive
+            ? "bg-blue-400/60 border-white/50 text-white shadow-md cursor-pointer"
+            : "bg-white/20 border-white/30 hover:bg-sky-200/50 text-gray-800 cursor-pointer";
         return (
           <button
             key={num}
-            className={`w-10 h-10 border rounded-lg flex items-center justify-center font-semibold transition-all duration-150 backdrop-blur-md ${
-              complete
-                ? "text-gray-400 bg-gray-200/30 border-white/20 cursor-default"
-                : isActive
-                  ? "bg-blue-400/60 border-white/50 text-white shadow-md cursor-pointer"
-                  : "bg-white/20 border-white/30 hover:bg-sky-200/50 text-gray-800 cursor-pointer"
+            className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
+              isNeu ? neuClasses : `border backdrop-blur-md ${glassClasses}`
             }`}
             onMouseEnter={() => !complete && onHover?.(num)}
             onMouseLeave={() => onHover?.(null)}

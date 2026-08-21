@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, FC } from "react";
+import { useTheme } from "../theme/theme-context";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -6,7 +7,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
 };
 
-const variantClasses: Record<ButtonVariant, string> = {
+const glassVariantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-blue-500/70 text-white hover:bg-blue-500/85 active:bg-blue-600/90 border-white/40 shadow-lg shadow-blue-900/10 backdrop-blur-md",
   secondary:
@@ -17,8 +18,29 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-red-500/70 text-white hover:bg-red-500/85 active:bg-red-600/90 border-white/40 shadow-lg shadow-red-900/10 backdrop-blur-md",
 };
 
-const disabledClasses =
+const glassDisabledClasses =
   "disabled:bg-gray-200/40 disabled:text-gray-400 disabled:border-white/20 disabled:shadow-none disabled:hover:bg-gray-200/40 disabled:active:bg-gray-200/40";
+
+const glassBaseClasses =
+  "rounded-xl border transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0";
+
+// Neumorphism: soft matte surface, no borders, dual soft shadows for an
+// "extruded" look; active/pressed states use inset shadows instead.
+const neuVariantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-blue-400 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.25),-6px_-6px_12px_rgba(255,255,255,0.5)] hover:brightness-105 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] border-transparent",
+  secondary:
+    "bg-gray-200 text-gray-800 shadow-[6px_6px_12px_rgba(0,0,0,0.15),-6px_-6px_12px_rgba(255,255,255,0.7)] hover:brightness-105 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.15),inset_-4px_-4px_8px_rgba(255,255,255,0.7)] border-transparent",
+  ghost:
+    "bg-gray-200/60 text-gray-800 shadow-none hover:bg-gray-200 hover:shadow-[3px_3px_6px_rgba(0,0,0,0.1),-3px_-3px_6px_rgba(255,255,255,0.6)] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-3px_-3px_6px_rgba(255,255,255,0.6)] border-transparent",
+  danger:
+    "bg-red-400 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.25),-6px_-6px_12px_rgba(255,255,255,0.5)] hover:brightness-105 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] border-transparent",
+};
+
+const neuDisabledClasses =
+  "disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)] disabled:hover:brightness-100";
+
+const neuBaseClasses = "rounded-xl border-0 transition-all duration-200";
 
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
@@ -26,9 +48,16 @@ export const Button: FC<ButtonProps> = ({
   children,
   ...props
 }) => {
+  const { theme } = useTheme();
+  const isNeu = theme === "neumorphism";
+
+  const themeClasses = isNeu
+    ? `${neuBaseClasses} ${neuVariantClasses[variant]} ${neuDisabledClasses}`
+    : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
+
   return (
     <button
-      className={`px-4 py-2 rounded-xl border font-medium transition-all duration-200 cursor-pointer disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0 ${variantClasses[variant]} ${disabledClasses} ${className}`}
+      className={`px-4 py-2 font-medium cursor-pointer disabled:cursor-not-allowed ${themeClasses} ${className}`}
       {...props}
     >
       {children}

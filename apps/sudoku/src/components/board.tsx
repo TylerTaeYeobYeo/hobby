@@ -1,3 +1,4 @@
+import { useTheme } from "@core/ui";
 import { useState, type MouseEvent } from "react";
 
 export type BoardProps = {
@@ -65,14 +66,24 @@ export const BoardCell = ({
     x: number;
     y: number;
   }>();
+  const { theme } = useTheme();
+  const isNeu = theme === "neumorphism";
 
-  const bgClass = isGiven
-    ? "bg-white/40"
-    : isSelected
-      ? "bg-blue-300/50"
-      : isHighlighted
-        ? "bg-sky-300/40"
-        : "bg-white/15 hover:bg-white/25";
+  const bgClass = isNeu
+    ? isGiven
+      ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
+      : isSelected
+        ? "bg-blue-100 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-3px_-3px_6px_rgba(255,255,255,0.6)]"
+        : isHighlighted
+          ? "bg-sky-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)]"
+          : "bg-gray-200 hover:brightness-105"
+    : isGiven
+      ? "bg-white/40"
+      : isSelected
+        ? "bg-blue-300/50"
+        : isHighlighted
+          ? "bg-sky-300/40"
+          : "bg-white/15 hover:bg-white/25";
 
   const handleCellClick = () => {
     onSelect?.();
@@ -98,7 +109,9 @@ export const BoardCell = ({
 
   return (
     <div
-      className={`w-12 h-12 flex flex-col items-center justify-center relative backdrop-blur-md transition-colors duration-150 ${bgClass}`}
+      className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
+        isNeu ? "" : "backdrop-blur-md"
+      } ${bgClass}`}
       onContextMenu={handleCellRightClick}
       onClick={handleCellClick}
     >
@@ -138,27 +151,38 @@ export const BoardCell = ({
           />
           <dialog
             open={!!showMemoPopup}
-            className="absolute bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl rounded-xl p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2"
+            className={`absolute p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2 rounded-xl ${
+              isNeu
+                ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.25),-8px_-8px_16px_rgba(255,255,255,0.7)]"
+                : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
+            }`}
           >
             <div className="grid grid-cols-3 gap-1 w-max h-max">
-              {MEMO_NUMS.map((num) => (
-                <button
-                  key={num}
-                  className={`border border-white/40 rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${
-                    memo?.includes(num.toString())
-                      ? "bg-blue-300/50"
-                      : "bg-white/20 hover:bg-white/40"
-                  }`}
-                  onClick={() => {
-                    const newMemo = memo?.includes(num.toString())
-                      ? memo.filter((m) => m !== num.toString())
-                      : [...(memo || []), num.toString()];
-                    onChange?.(value, newMemo);
-                  }}
-                >
-                  {num}
-                </button>
-              ))}
+              {MEMO_NUMS.map((num) => {
+                const selected = memo?.includes(num.toString());
+                return (
+                  <button
+                    key={num}
+                    className={`rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${
+                      isNeu
+                        ? selected
+                          ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
+                          : "bg-gray-200 shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:brightness-105"
+                        : selected
+                          ? "border border-white/40 bg-blue-300/50"
+                          : "border border-white/40 bg-white/20 hover:bg-white/40"
+                    }`}
+                    onClick={() => {
+                      const newMemo = memo?.includes(num.toString())
+                        ? memo.filter((m) => m !== num.toString())
+                        : [...(memo || []), num.toString()];
+                      onChange?.(value, newMemo);
+                    }}
+                  >
+                    {num}
+                  </button>
+                );
+              })}
             </div>
           </dialog>
         </>
@@ -178,9 +202,18 @@ export const Board = ({
   onSelectCell,
   onCellChange,
 }: BoardProps) => {
+  const { theme } = useTheme();
+  const isNeu = theme === "neumorphism";
+
   if (status === "paused") {
     return (
-      <div className="flex items-center justify-center w-96 h-96 rounded-2xl border border-white/50 bg-white/30 backdrop-blur-md text-gray-700 font-semibold text-lg shadow-2xl">
+      <div
+        className={`flex items-center justify-center w-96 h-96 rounded-2xl text-gray-700 font-semibold text-lg ${
+          isNeu
+            ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
+            : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
+        }`}
+      >
         Game paused
       </div>
     );
@@ -199,7 +232,11 @@ export const Board = ({
 
   return (
     <div
-      className="bg-white/40 border border-white/50 rounded-2xl shadow-2xl backdrop-blur-md p-1.5 overflow-hidden"
+      className={`rounded-2xl p-1.5 overflow-hidden ${
+        isNeu
+          ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
+          : "bg-white/40 border border-white/50 shadow-2xl backdrop-blur-md"
+      }`}
       style={{
         display: "grid",
         gridTemplateColumns: trackSizes,

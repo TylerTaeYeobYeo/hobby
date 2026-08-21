@@ -112,3 +112,17 @@
 - [x] Redo button re-applies the most recently undone action; disabled when redo stack is empty (nothing to redo)
 - [x] Performing a new action after undo(s) clears the redo stack (standard undo/redo semantics)
 - [x] Persist/restore behavior should not break existing Save/Load flow (history can reset on load, since it's a fresh session)
+
+## Glassmorphism UI
+
+- [x] Applied frosted-glass styling (translucent backgrounds, backdrop blur, soft borders/shadows) across `core/ui` `Button`, `Dialog`, `Tabs`, and app-specific `Board`, `NumberHintBar`, `Timer`, `Leaderboard`, `App` shell
+
+## Theme Switcher (Glassmorphism / Neumorphism)
+
+- [ ] `core/ui`: Add a `ThemeProvider` + `useTheme` hook (React context) supporting `"glass" | "neumorphism"`, persisted to `localStorage` (`uiTheme`), defaulting to `"glass"`
+- [ ] `core/ui`: Wrap `Button`, `Dialog`, `Tabs` internals to branch their className/style per active theme instead of hardcoded glass classes
+  - Neumorphism style: soft matte background (e.g. `bg-gray-100`/`bg-slate-200`), no borders, dual soft shadows (light top-left, dark bottom-right) for "extruded" look, and inset shadows for pressed/active/selected states
+- [ ] `apps/sudoku`: Wrap `App` root with `ThemeProvider`
+- [ ] `apps/sudoku`: Update `App.tsx` background, `Board`/`BoardCell`, `NumberHintBar`, `Timer` to branch styling per theme (flat neumorphic surface + soft shadows instead of blur/translucency when theme is `"neumorphism"`)
+- [ ] Add a "Theme" toggle control in the `Menu` page (e.g. segmented `Tabs` or icon buttons) to switch between Glassmorphism and Neumorphism live
+- [ ] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes
