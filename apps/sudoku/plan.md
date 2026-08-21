@@ -94,3 +94,21 @@
 ## Dialog Z-Index Fix
 
 - [x] Fixed `core/ui` `Dialog` rendering behind/through board cell content: switched to a React Portal (`createPortal` into `document.body`) so the overlay always escapes any ancestor stacking context, and bumped z-index to `z-999` for extra safety
+
+## Restart Feature
+
+- [x] Remove the "Erase" button from the game toolbar
+- [x] Add a "Restart" button in its place
+- [x] Clicking "Restart" opens a confirmation `Dialog` (uses core/ui `Dialog` + `Button`)
+- [x] On confirm: reset `board` back to the original given values (clear all user-entered values), clear all memos, keep `given` mask unchanged, reset timer to 0 and keep it running (or paused state as appropriate), reset hint/undo history state as appropriate
+- [x] On cancel: close dialog with no changes
+
+## Undo/Redo Feature
+
+- [x] Add icon-only Undo and Redo buttons next to the `Save` button (use simple icon glyphs/svg, no text label)
+- [x] Maintain an undo/redo history stack (max 40 entries) of user actions: writing a value, deleting a value, adding a memo, removing a memo
+- [x] Exclude non-content actions from history: cell focus/selection, blur, text selection, hover, hint-mode toggling
+- [x] Undo button reverts the most recent action in history; disabled when history is empty (nothing to undo)
+- [x] Redo button re-applies the most recently undone action; disabled when redo stack is empty (nothing to redo)
+- [x] Performing a new action after undo(s) clears the redo stack (standard undo/redo semantics)
+- [x] Persist/restore behavior should not break existing Save/Load flow (history can reset on load, since it's a fresh session)

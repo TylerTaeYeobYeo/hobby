@@ -58,6 +58,20 @@ const HINT_COINS_BY_DIFFICULTY: Record<Level, number> = {
   hard: 1,
 };
 
+const MAX_HISTORY = 40;
+
+type CellSnapshot = {
+  row: number;
+  col: number;
+  value: number;
+  memo: string[];
+};
+
+type HistoryAction = {
+  before: CellSnapshot;
+  after: CellSnapshot;
+};
+
 export const Game = () => {
   const query = useSearchParams();
   const navigate = useNavigate();
@@ -89,10 +103,19 @@ export const Game = () => {
   const [hintCoins, setHintCoins] = useState<number>(0);
   const [finalTime, setFinalTime] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   const isNew = query[0].get("isNew") ?? true;
   const startTimeRef = useRef<number | undefined>(undefined);
   const boardContainerRef = useRef<HTMLDivElement>(null);
+  const undoStackRef = useRef<HistoryAction[]>([]);
+  const redoStackRef = useRef<HistoryAction[]>([]);
+  const isApplyingHistoryRef = useRef(false);
+  // historyVersion forces a re-render whenever the undo/redo stacks change,
+  // since the stacks themselves live in refs.
+  const canUndo = historyVersion >= 0 && undoStackRef.current.length > 0;
+  const canRedo = historyVersion >= 0 && redoStackRef.current.length > 0;
   const timerRef = useRef<{
     getTime: () => number;
     pause: () => void;
@@ -168,12 +191,16 @@ export const Game = () => {
     if (gameState.given[row]?.[col]) return;
 
     setGameState((prevState) => {
+      const prevValue = prevState.board[row][col];
+      const prevMemo = prevState.memo[row][col];
+      const resolvedNewMemo = newMemo ?? prevMemo;
+
       const newBoard = prevState.board.map((r, rIndex) =>
         r.map((c, cIndex) => (rIndex === row && cIndex === col ? newValue : c)),
       );
       const newMemoState = prevState.memo.map((r, rIndex) =>
         r.map((c, cIndex) =>
-          rIndex === row && cIndex === col ? (newMemo ?? []) : c,
+          rIndex === row && cIndex === col ? resolvedNewMemo : c,
         ),
       );
       const nextState = {
@@ -181,6 +208,18 @@ export const Game = () => {
         board: newBoard,
         memo: newMemoState,
       };
+
+      if (!isApplyingHistoryRef.current) {
+        undoStackRef.current.push({
+          before: { row, col, value: prevValue, memo: prevMemo },
+          after: { row, col, value: newValue, memo: resolvedNewMemo },
+        });
+        if (undoStackRef.current.length > MAX_HISTORY) {
+          undoStackRef.current.shift();
+        }
+        redoStackRef.current = [];
+        setHistoryVersion((v) => v + 1);
+      }
 
       if (!hasCompletedRef.current && isBoardComplete(newBoard)) {
         hasCompletedRef.current = true;
@@ -195,6 +234,56 @@ export const Game = () => {
 
       return nextState;
     });
+  };
+
+  const handleUndo = () => {
+    const action = undoStackRef.current.pop();
+    if (!action) return;
+    redoStackRef.current.push(action);
+    isApplyingHistoryRef.current = true;
+    handleCellChange(
+      action.before.row,
+      action.before.col,
+      action.before.value,
+      action.before.memo,
+    );
+    isApplyingHistoryRef.current = false;
+    setHistoryVersion((v) => v + 1);
+  };
+
+  const handleRedo = () => {
+    const action = redoStackRef.current.pop();
+    if (!action) return;
+    undoStackRef.current.push(action);
+    isApplyingHistoryRef.current = true;
+    handleCellChange(
+      action.after.row,
+      action.after.col,
+      action.after.value,
+      action.after.memo,
+    );
+    isApplyingHistoryRef.current = false;
+    setHistoryVersion((v) => v + 1);
+  };
+
+  const handleRestart = () => {
+    setGameState((prevState) => ({
+      ...prevState,
+      board: prevState.given.map((row, rowIndex) =>
+        row.map((isGiven, colIndex) =>
+          isGiven ? prevState.board[rowIndex][colIndex] : 0,
+        ),
+      ),
+      memo: Array.from({ length: 9 }, () =>
+        Array.from({ length: 9 }, () => []),
+      ),
+    }));
+    undoStackRef.current = [];
+    redoStackRef.current = [];
+    hasCompletedRef.current = false;
+    setSelected(null);
+    setHistoryVersion((v) => v + 1);
+    setShowRestartDialog(false);
   };
 
   useEffect(() => {
@@ -229,13 +318,6 @@ export const Game = () => {
     return () =>
       document.removeEventListener("click", handleOutsideClick, true);
   }, [hintModeNumber]);
-
-  const handleErase = () => {
-    if (!selected) return;
-    const { row, col } = selected;
-    if (gameState.given[row]?.[col]) return;
-    handleCellChange(row, col, 0, []);
-  };
 
   const handleHint = () => {
     if (hintCoins <= 0 || status !== "playing") return;
@@ -283,10 +365,54 @@ export const Game = () => {
           </Button>
           <Button
             variant="danger"
-            onClick={handleErase}
-            disabled={status !== "playing" || !selected}
+            onClick={() => setShowRestartDialog(true)}
+            disabled={status !== "playing"}
           >
-            Erase
+            Restart
+          </Button>
+          <Button
+            variant="secondary"
+            aria-label="Undo"
+            title="Undo"
+            onClick={handleUndo}
+            disabled={status !== "playing" || !canUndo}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 14 4 9l5-5" />
+              <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+            </svg>
+          </Button>
+          <Button
+            variant="secondary"
+            aria-label="Redo"
+            title="Redo"
+            onClick={handleRedo}
+            disabled={status !== "playing" || !canRedo}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 14 5-5-5-5" />
+              <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
+            </svg>
           </Button>
           <Button
             variant="secondary"
@@ -348,6 +474,30 @@ export const Game = () => {
           </Button>
         </div>
       )}
+
+      <Dialog
+        open={showRestartDialog}
+        onClose={() => setShowRestartDialog(false)}
+        title="Restart Game?"
+      >
+        <div className="flex flex-col gap-3 min-w-56">
+          <p>
+            This will clear all the values and memos you&apos;ve entered. The
+            original given numbers will stay. Are you sure?
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => setShowRestartDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleRestart}>
+              Restart
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       <Dialog open={status === "completed"} title="🎉 Congratulations!">
         <div className="flex flex-col gap-3 min-w-56">
