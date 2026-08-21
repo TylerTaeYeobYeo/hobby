@@ -67,12 +67,12 @@ export const BoardCell = ({
   }>();
 
   const bgClass = isGiven
-    ? "bg-gray-100"
+    ? "bg-white/40"
     : isSelected
-      ? "bg-blue-100"
+      ? "bg-blue-300/50"
       : isHighlighted
-        ? "bg-sky-200"
-        : "bg-white";
+        ? "bg-sky-300/40"
+        : "bg-white/15 hover:bg-white/25";
 
   const handleCellClick = () => {
     onSelect?.();
@@ -98,7 +98,7 @@ export const BoardCell = ({
 
   return (
     <div
-      className={`border border-gray-300 w-12 h-12 flex flex-col items-center justify-center relative ${bgClass}`}
+      className={`w-12 h-12 flex flex-col items-center justify-center relative backdrop-blur-md transition-colors duration-150 ${bgClass}`}
       onContextMenu={handleCellRightClick}
       onClick={handleCellClick}
     >
@@ -107,7 +107,7 @@ export const BoardCell = ({
       ) : (
         <input
           style={{ width: "100%", height: "100%", textAlign: "center" }}
-          className="bg-transparent relative z-10"
+          className="bg-transparent relative z-10 text-gray-900 font-semibold outline-none"
           type="text"
           value={value === 0 ? "" : value}
           onChange={(e) => {
@@ -121,7 +121,7 @@ export const BoardCell = ({
         />
       )}
       {value === 0 && memo && memo.length > 0 && (
-        <div className="grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none text-gray-500 absolute inset-0">
+        <div className="grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none text-gray-600 absolute inset-0">
           {MEMO_NUMS.map((num) => (
             <div key={num} className="flex items-center justify-center">
               {memo.includes(num.toString()) ? num : ""}
@@ -138,14 +138,16 @@ export const BoardCell = ({
           />
           <dialog
             open={!!showMemoPopup}
-            className="absolute bg-white border border-gray-300 p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2"
+            className="absolute bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl rounded-xl p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2"
           >
             <div className="grid grid-cols-3 gap-1 w-max h-max">
               {MEMO_NUMS.map((num) => (
                 <button
                   key={num}
-                  className={`border border-gray-300 w-8 h-8 flex items-center justify-center ${
-                    memo?.includes(num.toString()) ? "bg-gray-300" : ""
+                  className={`border border-white/40 rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${
+                    memo?.includes(num.toString())
+                      ? "bg-blue-300/50"
+                      : "bg-white/20 hover:bg-white/40"
                   }`}
                   onClick={() => {
                     const newMemo = memo?.includes(num.toString())
@@ -177,7 +179,11 @@ export const Board = ({
   onCellChange,
 }: BoardProps) => {
   if (status === "paused") {
-    return <div>Game paused</div>;
+    return (
+      <div className="flex items-center justify-center w-96 h-96 rounded-2xl border border-white/50 bg-white/30 backdrop-blur-md text-gray-700 font-semibold text-lg shadow-2xl">
+        Game paused
+      </div>
+    );
   }
 
   const CELL_SIZE = 48; // px, matches w-12/h-12
@@ -193,7 +199,7 @@ export const Board = ({
 
   return (
     <div
-      className="bg-gray-300"
+      className="bg-white/40 border border-white/50 rounded-2xl shadow-2xl backdrop-blur-md p-1.5 overflow-hidden"
       style={{
         display: "grid",
         gridTemplateColumns: trackSizes,

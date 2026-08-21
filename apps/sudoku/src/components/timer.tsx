@@ -51,5 +51,12 @@ export const Timer = forwardRef<
     [elapsedTimeRef, resume],
   );
 
-  return <div ref={divRef}>{startTime.toFixed(2)} seconds</div>;
+  return (
+    <div
+      ref={divRef}
+      className="text-xl font-mono font-semibold text-gray-800 bg-white/30 border border-white/40 backdrop-blur-md rounded-xl px-4 py-2 shadow-md"
+    >
+      {startTime.toFixed(2)} seconds
+    </div>
+  );
 });

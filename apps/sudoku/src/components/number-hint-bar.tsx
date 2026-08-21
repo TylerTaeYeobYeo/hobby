@@ -25,19 +25,19 @@ export const NumberHintBar = ({
   onClickNumber,
 }: NumberHintBarProps) => {
   return (
-    <div className="flex justify-center gap-2 mt-4">
+    <div className="flex justify-center gap-2 mt-4 rounded-2xl border border-white/40 bg-white/20 p-2 backdrop-blur-md shadow-lg">
       {NUMS.map((num) => {
         const complete = isNumberComplete(board, num);
         const isActive = activeNumber === num;
         return (
           <button
             key={num}
-            className={`w-10 h-10 border rounded-md flex items-center justify-center font-semibold transition-colors ${
+            className={`w-10 h-10 border rounded-lg flex items-center justify-center font-semibold transition-all duration-150 backdrop-blur-md ${
               complete
-                ? "text-gray-300 bg-gray-50 border-gray-300 cursor-default"
+                ? "text-gray-400 bg-gray-200/30 border-white/20 cursor-default"
                 : isActive
-                  ? "bg-blue-200 border-blue-500 cursor-pointer"
-                  : "border-gray-300 hover:bg-sky-100 cursor-pointer"
+                  ? "bg-blue-400/60 border-white/50 text-white shadow-md cursor-pointer"
+                  : "bg-white/20 border-white/30 hover:bg-sky-200/50 text-gray-800 cursor-pointer"
             }`}
             onMouseEnter={() => !complete && onHover?.(num)}
             onMouseLeave={() => onHover?.(null)}
