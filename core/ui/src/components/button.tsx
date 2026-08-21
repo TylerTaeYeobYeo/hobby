@@ -34,7 +34,7 @@ const neuVariantClasses: Record<ButtonVariant, string> = {
   ghost:
     "bg-gray-200/60 text-gray-800 shadow-none hover:bg-gray-200 hover:shadow-[3px_3px_6px_rgba(0,0,0,0.1),-3px_-3px_6px_rgba(255,255,255,0.6)] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-3px_-3px_6px_rgba(255,255,255,0.6)] border-transparent",
   danger:
-    "bg-red-400 text-white shadow-[6px_6px_12px_rgba(0,0,0,0.25),-6px_-6px_12px_rgba(255,255,255,0.5)] hover:brightness-105 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] border-transparent",
+    "bg-red-400 text-red-500 shadow-[6px_6px_12px_rgba(0,0,0,0.25),-6px_-6px_12px_rgba(255,255,255,0.5)] hover:brightness-105 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.3)] border-transparent",
 };
 
 const neuDisabledClasses =
