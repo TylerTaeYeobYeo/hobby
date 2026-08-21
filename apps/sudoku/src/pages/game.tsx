@@ -282,6 +282,7 @@ export const Game = () => {
     setSelected(null);
     setHistoryVersion((v) => v + 1);
     setShowRestartDialog(false);
+    timerRef.current?.resume();
   };
 
   useEffect(() => {
@@ -363,7 +364,10 @@ export const Game = () => {
           </Button>
           <Button
             variant="danger"
-            onClick={() => setShowRestartDialog(true)}
+            onClick={() => {
+              timerRef.current?.pause();
+              setShowRestartDialog(true);
+            }}
             disabled={status !== "playing"}
           >
             Restart
@@ -441,17 +445,19 @@ export const Game = () => {
         className="flex justify-center items-center mt-4"
         ref={boardContainerRef}
       >
-        <Board
-          board={gameState.board}
-          memo={gameState.memo}
-          given={gameState.given}
-          status={status === "completed" ? "playing" : status}
-          hoveredNumber={hoveredNumber}
-          hintNumber={hintModeNumber}
-          selected={selected}
-          onSelectCell={(row, col) => setSelected({ row, col })}
-          onCellChange={handleCellChange}
-        />
+        {!showRestartDialog && (
+          <Board
+            board={gameState.board}
+            memo={gameState.memo}
+            given={gameState.given}
+            status={status === "completed" ? "playing" : status}
+            hoveredNumber={hoveredNumber}
+            hintNumber={hintModeNumber}
+            selected={selected}
+            onSelectCell={(row, col) => setSelected({ row, col })}
+            onCellChange={handleCellChange}
+          />
+        )}
       </div>
       {status !== "paused" && (
         <div className="flex flex-col items-center gap-2">
@@ -486,7 +492,10 @@ export const Game = () => {
           <div className="flex gap-2 justify-end">
             <Button
               variant="secondary"
-              onClick={() => setShowRestartDialog(false)}
+              onClick={() => {
+                setShowRestartDialog(false);
+                timerRef.current?.resume();
+              }}
             >
               Cancel
             </Button>
