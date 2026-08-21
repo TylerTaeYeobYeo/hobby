@@ -111,7 +111,6 @@ export const Game = () => {
   const boardContainerRef = useRef<HTMLDivElement>(null);
   const undoStackRef = useRef<HistoryAction[]>([]);
   const redoStackRef = useRef<HistoryAction[]>([]);
-  const isApplyingHistoryRef = useRef(false);
   // historyVersion forces a re-render whenever the undo/redo stacks change,
   // since the stacks themselves live in refs.
   const canUndo = historyVersion >= 0 && undoStackRef.current.length > 0;
@@ -187,6 +186,7 @@ export const Game = () => {
     col: number,
     newValue: number,
     newMemo?: string[],
+    skipHistory = false,
   ) => {
     if (gameState.given[row]?.[col]) return;
 
@@ -209,7 +209,7 @@ export const Game = () => {
         memo: newMemoState,
       };
 
-      if (!isApplyingHistoryRef.current) {
+      if (!skipHistory) {
         undoStackRef.current.push({
           before: { row, col, value: prevValue, memo: prevMemo },
           after: { row, col, value: newValue, memo: resolvedNewMemo },
@@ -240,14 +240,13 @@ export const Game = () => {
     const action = undoStackRef.current.pop();
     if (!action) return;
     redoStackRef.current.push(action);
-    isApplyingHistoryRef.current = true;
     handleCellChange(
       action.before.row,
       action.before.col,
       action.before.value,
       action.before.memo,
+      true,
     );
-    isApplyingHistoryRef.current = false;
     setHistoryVersion((v) => v + 1);
   };
 
@@ -255,14 +254,13 @@ export const Game = () => {
     const action = redoStackRef.current.pop();
     if (!action) return;
     undoStackRef.current.push(action);
-    isApplyingHistoryRef.current = true;
     handleCellChange(
       action.after.row,
       action.after.col,
       action.after.value,
       action.after.memo,
+      true,
     );
-    isApplyingHistoryRef.current = false;
     setHistoryVersion((v) => v + 1);
   };
 
