@@ -1,4 +1,5 @@
 import type { FC, HTMLAttributes, ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 export type DialogProps = HTMLAttributes<HTMLDivElement> & {
   open: boolean;
@@ -18,9 +19,9 @@ export const Dialog: FC<DialogProps> = ({
 }) => {
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-999 flex items-center justify-center bg-black/50"
       onClick={() => {
         if (closeOnBackdropClick) onClose?.();
       }}
@@ -46,6 +47,7 @@ export const Dialog: FC<DialogProps> = ({
         )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

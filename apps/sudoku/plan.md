@@ -90,3 +90,7 @@
 - [x] Fixed win detection: previously compared filled board to the exact generated `solution` array, which failed for alternate valid solutions; now validates the board is full and satisfies Sudoku rules (no duplicates in any row/column/box)
 - [x] Guarded against duplicate completion triggers (e.g. rapid updates) with a `hasCompletedRef`
 - [x] Completion `Dialog` now shows a clear congratulations message, final time, and the player's rank on the difficulty's leaderboard
+
+## Dialog Z-Index Fix
+
+- [x] Fixed `core/ui` `Dialog` rendering behind/through board cell content: switched to a React Portal (`createPortal` into `document.body`) so the overlay always escapes any ancestor stacking context, and bumped z-index to `z-999` for extra safety
