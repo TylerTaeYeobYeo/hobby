@@ -28,13 +28,16 @@ export const NumberHintBar = ({
 }: NumberHintBarProps) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
+  const isMaterial = theme === "material";
 
   return (
     <div
       className={`flex justify-center gap-2 mt-4 rounded-2xl p-2 ${
         isNeu
           ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.7)]"
-          : "border border-white/40 bg-white/20 backdrop-blur-md shadow-lg"
+          : isMaterial
+            ? "bg-white shadow-md"
+            : "border border-white/40 bg-white/20 backdrop-blur-md shadow-lg"
       }`}
     >
       {NUMS.map((num) => {
@@ -45,6 +48,11 @@ export const NumberHintBar = ({
           : isActive
             ? "bg-blue-400 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.3)] cursor-pointer"
             : "bg-gray-200 text-gray-800 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-3px_-3px_6px_rgba(255,255,255,0.7)] hover:brightness-105 cursor-pointer";
+        const materialClasses = complete
+          ? "text-gray-300 bg-gray-50 cursor-default"
+          : isActive
+            ? "bg-blue-600 text-white shadow-md cursor-pointer"
+            : "bg-gray-50 text-gray-800 hover:bg-blue-50 cursor-pointer";
         const glassClasses = complete
           ? "text-gray-400 bg-gray-200/30 border-white/20 cursor-default"
           : isActive
@@ -54,7 +62,11 @@ export const NumberHintBar = ({
           <button
             key={num}
             className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
-              isNeu ? neuClasses : `border backdrop-blur-md ${glassClasses}`
+              isNeu
+                ? neuClasses
+                : isMaterial
+                  ? materialClasses
+                  : `border backdrop-blur-md ${glassClasses}`
             }`}
             onMouseEnter={() => !complete && onHover?.(num)}
             onMouseLeave={() => onHover?.(null)}

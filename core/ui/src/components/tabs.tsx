@@ -20,10 +20,13 @@ export const Tabs = <T extends string>({
 }: TabsProps<T>) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
+  const isMaterial = theme === "material";
 
   const trackClasses = isNeu
     ? "rounded-xl bg-gray-200 p-1 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.15),inset_-4px_-4px_8px_rgba(255,255,255,0.7)]"
-    : "rounded-xl border border-white/40 bg-white/20 p-1 backdrop-blur-md shadow-inner";
+    : isMaterial
+      ? "rounded-md bg-gray-100 p-1"
+      : "rounded-xl border border-white/40 bg-white/20 p-1 backdrop-blur-md shadow-inner";
 
   return (
     <div
@@ -36,9 +39,13 @@ export const Tabs = <T extends string>({
           ? selected
             ? "bg-gray-200 text-gray-900 shadow-[3px_3px_6px_rgba(0,0,0,0.2),-3px_-3px_6px_rgba(255,255,255,0.7)]"
             : "bg-transparent text-gray-500 hover:text-gray-700"
-          : selected
-            ? "bg-white/70 text-gray-900 shadow-md backdrop-blur-md"
-            : "bg-transparent text-gray-600 hover:text-gray-800 hover:bg-white/30";
+          : isMaterial
+            ? selected
+              ? "bg-white text-blue-700 shadow-md"
+              : "bg-transparent text-gray-600 hover:bg-white/60 hover:text-gray-800"
+            : selected
+              ? "bg-white/70 text-gray-900 shadow-md backdrop-blur-md"
+              : "bg-transparent text-gray-600 hover:text-gray-800 hover:bg-white/30";
         return (
           <button
             key={item.value}

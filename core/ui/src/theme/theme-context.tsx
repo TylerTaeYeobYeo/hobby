@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type UiTheme = "glass" | "neumorphism";
+export type UiTheme = "glass" | "neumorphism" | "material";
 
 const STORAGE_KEY = "uiTheme";
 
@@ -20,10 +20,14 @@ export type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
+const VALID_THEMES: UiTheme[] = ["glass", "neumorphism", "material"];
+
 const readStoredTheme = (): UiTheme => {
-  if (typeof window === "undefined") return "glass";
+  if (typeof window === "undefined") return "material";
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "neumorphism" ? "neumorphism" : "glass";
+  return VALID_THEMES.includes(stored as UiTheme)
+    ? (stored as UiTheme)
+    : "material";
 };
 
 export const ThemeProvider: FC<{
@@ -52,8 +56,8 @@ export const ThemeProvider: FC<{
 export const useTheme = (): ThemeContextValue => {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    // Fallback so components can be used outside a provider (defaults to glass).
-    return { theme: "glass", setTheme: () => {} };
+    // Fallback so components can be used outside a provider (defaults to material).
+    return { theme: "material", setTheme: () => {} };
   }
   return ctx;
 };

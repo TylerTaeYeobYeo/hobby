@@ -42,6 +42,25 @@ const neuDisabledClasses =
 
 const neuBaseClasses = "rounded-xl border-0 transition-all duration-200";
 
+// Material Design: solid fill colors, elevation shadows that grow on hover
+// (like Material's resting/hover/pressed elevation levels), no borders.
+const materialVariantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-blue-600 text-white shadow-md hover:shadow-lg hover:bg-blue-700 active:shadow-sm active:bg-blue-800 border-transparent",
+  secondary:
+    "bg-white text-blue-700 shadow-sm hover:shadow-md hover:bg-blue-50 active:shadow-none active:bg-blue-100 border-transparent",
+  ghost:
+    "bg-transparent text-blue-700 shadow-none hover:bg-blue-50 active:bg-blue-100 border-transparent",
+  danger:
+    "bg-red-600 text-red-500 shadow-md hover:shadow-lg hover:bg-red-700 active:shadow-sm active:bg-red-800 border-transparent",
+};
+
+const materialDisabledClasses =
+  "disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:hover:bg-gray-200 disabled:hover:shadow-none disabled:active:bg-gray-200";
+
+const materialBaseClasses =
+  "rounded-md border-0 transition-all duration-150 uppercase text-sm tracking-wide";
+
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
   className = "",
@@ -50,10 +69,13 @@ export const Button: FC<ButtonProps> = ({
 }) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
+  const isMaterial = theme === "material";
 
   const themeClasses = isNeu
     ? `${neuBaseClasses} ${neuVariantClasses[variant]} ${neuDisabledClasses}`
-    : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
+    : isMaterial
+      ? `${materialBaseClasses} ${materialVariantClasses[variant]} ${materialDisabledClasses}`
+      : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
 
   return (
     <button

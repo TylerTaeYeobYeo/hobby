@@ -104,6 +104,8 @@ export const Game = () => {
   const [finalTime, setFinalTime] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showBackDialog, setShowBackDialog] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
 
   const isNew = query[0].get("isNew") ?? true;
@@ -285,6 +287,32 @@ export const Game = () => {
     timerRef.current?.resume();
   };
 
+  const persistGameState = () => {
+    const currentTime = timerRef.current?.getTime();
+    if (currentTime !== undefined) {
+      localStorage.setItem(
+        "sudokuGameState",
+        JSON.stringify({
+          startTime: currentTime,
+          difficulty,
+          hintCoins,
+          ...gameState,
+        }),
+      );
+    }
+  };
+
+  const handleSaveConfirm = () => {
+    setShowSaveDialog(false);
+    persistGameState();
+    navigate("/");
+  };
+
+  const handleBackConfirm = () => {
+    setShowBackDialog(false);
+    navigate("/");
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selected || status !== "playing") return;
@@ -348,6 +376,15 @@ export const Game = () => {
       <div className="flex justify-evenly items-center">
         <Timer ref={timerRef} startTime={startTimeRef?.current ?? 0} />
         <div className="flex gap-2 items-center">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              timerRef.current?.pause();
+              setShowBackDialog(true);
+            }}
+          >
+            ← Back
+          </Button>
           <Button
             variant="secondary"
             onClick={() => {
@@ -421,19 +458,7 @@ export const Game = () => {
             onClick={() => {
               timerRef.current?.pause();
               setStatus("paused");
-              const currentTime = timerRef.current?.getTime();
-              if (currentTime !== undefined) {
-                localStorage.setItem(
-                  "sudokuGameState",
-                  JSON.stringify({
-                    startTime: currentTime,
-                    difficulty,
-                    hintCoins,
-                    ...gameState,
-                  }),
-                );
-              }
-              navigate("/");
+              setShowSaveDialog(true);
             }}
           >
             Save
@@ -450,7 +475,7 @@ export const Game = () => {
           memo={gameState.memo}
           given={gameState.given}
           status={
-            showRestartDialog
+            showRestartDialog || showBackDialog
               ? "paused"
               : status === "completed"
                 ? "playing"
@@ -463,25 +488,27 @@ export const Game = () => {
           onCellChange={handleCellChange}
         />
       </div>
-      {status !== "paused" && (
-        <div className="flex flex-col items-center gap-2">
-          <NumberHintBar
-            board={gameState.board}
-            activeNumber={hintModeNumber}
-            onHover={setHoveredNumber}
-            onClickNumber={(num) =>
-              setHintModeNumber((prev) => (prev === num ? null : num))
-            }
-          />
-          <Button
-            variant="secondary"
-            onClick={handleHint}
-            disabled={status !== "playing" || hintCoins <= 0}
-          >
-            💡 Hint ({hintCoins})
-          </Button>
-        </div>
-      )}
+      <div
+        className={`flex flex-col items-center gap-2 ${
+          status === "paused" ? "invisible" : ""
+        }`}
+      >
+        <NumberHintBar
+          board={gameState.board}
+          activeNumber={hintModeNumber}
+          onHover={setHoveredNumber}
+          onClickNumber={(num) =>
+            setHintModeNumber((prev) => (prev === num ? null : num))
+          }
+        />
+        <Button
+          variant="secondary"
+          onClick={handleHint}
+          disabled={status !== "playing" || hintCoins <= 0}
+        >
+          💡 Hint ({hintCoins})
+        </Button>
+      </div>
 
       <Dialog
         open={showRestartDialog}
@@ -505,6 +532,66 @@ export const Game = () => {
             </Button>
             <Button variant="danger" onClick={handleRestart}>
               Restart
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={showSaveDialog}
+        onClose={() => {
+          setShowSaveDialog(false);
+          timerRef.current?.resume();
+          setStatus("playing");
+        }}
+        title="Save Game?"
+      >
+        <div className="flex flex-col gap-3 min-w-56">
+          <p>
+            This will save your current progress and return you to the menu.
+            Continue?
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowSaveDialog(false);
+                timerRef.current?.resume();
+                setStatus("playing");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveConfirm}>Save</Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={showBackDialog}
+        onClose={() => {
+          setShowBackDialog(false);
+          timerRef.current?.resume();
+        }}
+        title="Leave Game?"
+      >
+        <div className="flex flex-col gap-3 min-w-56">
+          <p>
+            Going back to the menu without saving will discard your current
+            progress. Are you sure?
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowBackDialog(false);
+                timerRef.current?.resume();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleBackConfirm}>
+              Leave
             </Button>
           </div>
         </div>

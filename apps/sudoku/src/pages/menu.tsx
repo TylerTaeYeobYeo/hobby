@@ -5,6 +5,7 @@ import { DifficultyDialog } from "../components/difficulty-dialog";
 import type { Level } from "../util/sudoku-generator";
 
 const THEME_OPTIONS: { value: UiTheme; label: string }[] = [
+  { value: "material", label: "Material" },
   { value: "glass", label: "Glass" },
   { value: "neumorphism", label: "Neumorphism" },
 ];

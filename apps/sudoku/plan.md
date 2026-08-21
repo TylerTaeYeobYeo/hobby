@@ -126,3 +126,14 @@
 - [x] `apps/sudoku`: Update `App.tsx` background, `Board`/`BoardCell`, `NumberHintBar`, `Timer` to branch styling per theme (flat neumorphic surface + soft shadows instead of blur/translucency when theme is `"neumorphism"`)
 - [x] Add a "Theme" toggle control in the `Menu` page (e.g. segmented `Tabs` or icon buttons) to switch between Glassmorphism and Neumorphism live
 - [x] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes
+
+## Save Confirmation, Back Button, Hint Bar Placeholder, Material Theme
+
+- [ ] Clicking "Save" on the game page opens a confirmation `Dialog` before actually saving + navigating away (uses core/ui `Dialog` + `Button`); confirm saves and returns to menu, cancel closes dialog with no changes
+- [ ] Add a "Back" button on the game page (navigates to menu without saving); should prompt/pause appropriately similar to other navigation actions
+- [ ] When game is paused, hide `NumberHintBar` and the Hint `Button` visually but reserve their layout space (e.g. `invisible` instead of unmounting/conditional render) so the page doesn't shift
+- [ ] `core/ui`: Add a third `"material"` theme option to `ThemeProvider`/`useTheme` (Material Design style: elevation shadows, solid fill colors, ripple-like hover/active states) and make it the new default theme
+- [ ] `core/ui`: Branch `Button`, `Dialog`, `Tabs` styling for the `"material"` theme
+- [ ] `apps/sudoku`: Branch `App.tsx`, `Board`/`BoardCell`, `NumberHintBar`, `Timer` styling for the `"material"` theme
+- [ ] Update `Menu` page's Theme `Tabs` to include all three options (Glass / Neumorphism / Material)
+- [ ] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes

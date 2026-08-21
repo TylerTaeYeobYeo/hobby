@@ -68,6 +68,7 @@ export const BoardCell = ({
   }>();
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
+  const isMaterial = theme === "material";
 
   const bgClass = isNeu
     ? isGiven
@@ -77,13 +78,21 @@ export const BoardCell = ({
         : isHighlighted
           ? "bg-sky-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)]"
           : "bg-gray-200 hover:brightness-105"
-    : isGiven
-      ? "bg-white/40"
-      : isSelected
-        ? "bg-blue-300/50"
-        : isHighlighted
-          ? "bg-sky-300/40"
-          : "bg-white/15 hover:bg-white/25";
+    : isMaterial
+      ? isGiven
+        ? "bg-gray-100"
+        : isSelected
+          ? "bg-blue-100"
+          : isHighlighted
+            ? "bg-sky-100"
+            : "bg-white hover:bg-gray-50"
+      : isGiven
+        ? "bg-white/40"
+        : isSelected
+          ? "bg-blue-300/50"
+          : isHighlighted
+            ? "bg-sky-300/40"
+            : "bg-white/15 hover:bg-white/25";
 
   const handleCellClick = () => {
     onSelect?.();
@@ -110,7 +119,7 @@ export const BoardCell = ({
   return (
     <div
       className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
-        isNeu ? "" : "backdrop-blur-md"
+        isNeu || isMaterial ? "" : "backdrop-blur-md"
       } ${bgClass}`}
       onContextMenu={handleCellRightClick}
       onClick={handleCellClick}
@@ -154,7 +163,9 @@ export const BoardCell = ({
             className={`absolute p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2 rounded-xl ${
               isNeu
                 ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.25),-8px_-8px_16px_rgba(255,255,255,0.7)]"
-                : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
+                : isMaterial
+                  ? "bg-white shadow-xl"
+                  : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
             }`}
           >
             <div className="grid grid-cols-3 gap-1 w-max h-max">
@@ -168,9 +179,13 @@ export const BoardCell = ({
                         ? selected
                           ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
                           : "bg-gray-200 shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:brightness-105"
-                        : selected
-                          ? "border border-white/40 bg-blue-300/50"
-                          : "border border-white/40 bg-white/20 hover:bg-white/40"
+                        : isMaterial
+                          ? selected
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-50 hover:bg-gray-100"
+                          : selected
+                            ? "border border-white/40 bg-blue-300/50"
+                            : "border border-white/40 bg-white/20 hover:bg-white/40"
                     }`}
                     onClick={() => {
                       const newMemo = memo?.includes(num.toString())
@@ -204,6 +219,7 @@ export const Board = ({
 }: BoardProps) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
+  const isMaterial = theme === "material";
 
   const CELL_SIZE = 48; // px, matches w-12/h-12
   const DIVIDER_SIZE = 6; // px
@@ -216,7 +232,9 @@ export const Board = ({
         className={`flex items-center justify-center rounded-2xl text-gray-700 font-semibold text-lg ${
           isNeu
             ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
-            : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
+            : isMaterial
+              ? "bg-white shadow-lg"
+              : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
         }`}
         style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
       >
@@ -238,7 +256,9 @@ export const Board = ({
       className={`rounded-2xl p-1.5 overflow-hidden ${
         isNeu
           ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
-          : "bg-white/40 border border-white/50 shadow-2xl backdrop-blur-md"
+          : isMaterial
+            ? "bg-white shadow-lg"
+            : "bg-white/40 border border-white/50 shadow-2xl backdrop-blur-md"
       }`}
       style={{
         display: "grid",
