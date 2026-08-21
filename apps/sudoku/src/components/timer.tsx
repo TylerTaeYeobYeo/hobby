@@ -16,7 +16,7 @@ export const Timer = forwardRef<
 >(({ startTime = 0 }, ref) => {
   const divRef = useRef<HTMLDivElement>(null);
   const elapsedTimeRef = useRef<number>(startTime);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const resume = useCallback(() => {
     intervalRef.current = setInterval(() => {

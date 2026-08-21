@@ -8,6 +8,7 @@ import { Menu } from "./pages/menu.tsx";
 
 import "./index.css";
 import { Game } from "./pages/game.tsx";
+import { Leaderboard } from "./pages/leaderboard.tsx";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "game",
         Component: Game,
+      },
+      {
+        path: "leaderboard",
+        Component: Leaderboard,
       },
     ],
   },

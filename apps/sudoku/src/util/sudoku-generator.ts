@@ -1,11 +1,19 @@
 export type Level = "easy" | "medium" | "hard";
 
+export type SudokuPuzzle = {
+  board: number[][];
+  solution: number[][];
+  given: boolean[][];
+};
+
 // generate a sudoku puzzle with a given difficulty level
-export const generateSudoku = (difficulty: Level): number[][] => {
+export const generateSudoku = (difficulty: Level): SudokuPuzzle => {
   const baseBoard = createBaseBoard();
   const filledBoard = fillBoard(baseBoard);
+  const solution = filledBoard.map((row) => [...row]);
   const puzzle = createPuzzle(filledBoard, difficulty);
-  return puzzle;
+  const given = puzzle.map((row) => row.map((cell) => cell !== 0));
+  return { board: puzzle, solution, given };
 };
 
 function createBaseBoard() {
