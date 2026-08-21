@@ -1,13 +1,13 @@
-import { Button } from "@core/ui";
+import { Button, Tabs } from "@core/ui";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { formatTime, getHighScores } from "../util/highscore";
 import type { Level } from "../util/sudoku-generator";
 
-const LEVELS: { level: Level; label: string }[] = [
-  { level: "easy", label: "Easy" },
-  { level: "medium", label: "Medium" },
-  { level: "hard", label: "Hard" },
+const LEVELS: { value: Level; label: string }[] = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
 ];
 
 export const Leaderboard = () => {
@@ -17,16 +17,8 @@ export const Leaderboard = () => {
 
   return (
     <div className="flex flex-col gap-4 min-w-sm">
-      <div className="flex justify-center gap-2">
-        {LEVELS.map(({ level, label }) => (
-          <Button
-            key={level}
-            variant={difficulty === level ? "primary" : "secondary"}
-            onClick={() => setDifficulty(level)}
-          >
-            {label}
-          </Button>
-        ))}
+      <div className="flex justify-center">
+        <Tabs items={LEVELS} value={difficulty} onChange={setDifficulty} />
       </div>
       <div className="flex flex-col gap-1">
         {scores.length === 0 ? (

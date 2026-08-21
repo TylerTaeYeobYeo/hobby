@@ -10,12 +10,15 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 border-transparent",
   secondary:
-    "bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300 border-gray-300",
+    "bg-white text-gray-900 hover:bg-gray-100 active:bg-gray-200 border-gray-300",
   ghost:
-    "bg-transparent text-gray-900 hover:bg-gray-100 active:bg-gray-200 border-transparent",
+    "bg-white text-gray-900 hover:bg-gray-100 active:bg-gray-200 border-transparent",
   danger:
     "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 border-transparent",
 };
+
+const disabledClasses =
+  "disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-100 disabled:hover:bg-gray-100 disabled:active:bg-gray-100";
 
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
@@ -25,7 +28,7 @@ export const Button: FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className={`px-4 py-2 rounded-md border font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${className}`}
+      className={`px-4 py-2 rounded-md border font-medium transition-colors cursor-pointer disabled:cursor-not-allowed ${variantClasses[variant]} ${disabledClasses} ${className}`}
       {...props}
     >
       {children}
