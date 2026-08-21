@@ -205,22 +205,25 @@ export const Board = ({
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
 
+  const CELL_SIZE = 48; // px, matches w-12/h-12
+  const DIVIDER_SIZE = 6; // px
+  const BOARD_PADDING = 6; // px, matches p-1.5
+  const BOARD_SIZE = CELL_SIZE * 9 + DIVIDER_SIZE * 2 + BOARD_PADDING * 2;
+
   if (status === "paused") {
     return (
       <div
-        className={`flex items-center justify-center w-96 h-96 rounded-2xl text-gray-700 font-semibold text-lg ${
+        className={`flex items-center justify-center rounded-2xl text-gray-700 font-semibold text-lg ${
           isNeu
             ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
             : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
         }`}
+        style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
       >
         Game paused
       </div>
     );
   }
-
-  const CELL_SIZE = 48; // px, matches w-12/h-12
-  const DIVIDER_SIZE = 6; // px
 
   const trackSizes = Array.from({ length: 11 }, (_, i) =>
     i === 3 || i === 7 ? `${DIVIDER_SIZE}px` : `${CELL_SIZE}px`,

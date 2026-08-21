@@ -24,8 +24,8 @@ export const Dialog: FC<DialogProps> = ({
   if (!open) return null;
 
   const panelClasses = isNeu
-    ? "bg-gray-200 rounded-2xl shadow-[12px_12px_24px_rgba(0,0,0,0.25),-12px_-12px_24px_rgba(255,255,255,0.7)] p-6 min-w-[20rem]"
-    : "bg-white/30 border border-white/40 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 min-w-[20rem]";
+    ? "bg-gray-200 rounded-2xl shadow-[12px_12px_24px_rgba(0,0,0,0.25),-12px_-12px_24px_rgba(255,255,255,0.7)] p-8 min-w-[20rem]"
+    : "bg-white/30 border border-white/40 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 min-w-[20rem]";
 
   return createPortal(
     <div
@@ -42,7 +42,7 @@ export const Dialog: FC<DialogProps> = ({
         {...props}
       >
         {title && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-bold text-gray-800">{title}</h2>
             {onClose && (
               <button

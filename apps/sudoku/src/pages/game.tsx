@@ -445,19 +445,23 @@ export const Game = () => {
         className="flex justify-center items-center mt-4"
         ref={boardContainerRef}
       >
-        {!showRestartDialog && (
-          <Board
-            board={gameState.board}
-            memo={gameState.memo}
-            given={gameState.given}
-            status={status === "completed" ? "playing" : status}
-            hoveredNumber={hoveredNumber}
-            hintNumber={hintModeNumber}
-            selected={selected}
-            onSelectCell={(row, col) => setSelected({ row, col })}
-            onCellChange={handleCellChange}
-          />
-        )}
+        <Board
+          board={gameState.board}
+          memo={gameState.memo}
+          given={gameState.given}
+          status={
+            showRestartDialog
+              ? "paused"
+              : status === "completed"
+                ? "playing"
+                : status
+          }
+          hoveredNumber={hoveredNumber}
+          hintNumber={hintModeNumber}
+          selected={selected}
+          onSelectCell={(row, col) => setSelected({ row, col })}
+          onCellChange={handleCellChange}
+        />
       </div>
       {status !== "paused" && (
         <div className="flex flex-col items-center gap-2">
