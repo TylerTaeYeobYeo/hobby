@@ -135,10 +135,12 @@ export const CongratulationsDialog = ({
           {finalTime !== null ? formatTime(finalTime) : ""}
         </span>
       </p>
-      {rank !== null && (
+      {rank !== null ? (
         <p>
           You ranked <span className="font-bold">#{rank}</span> on the {difficulty} leaderboard!
         </p>
+      ) : (
+        <p>You didn&apos;t make the top 10 this time — keep practicing!</p>
       )}
       <Button onClick={onBackToMenu}>Back to Menu</Button>
     </div>
