@@ -33,7 +33,7 @@ export const Dialog: FC<DialogProps> = ({
       : isCupertino
         ? "bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#E5E5EA] p-8 min-w-[20rem]"
         : isCyberpunk
-          ? "bg-[#0d0d1a] text-[#c0c0d0] rounded-sm border border-[#00e5ff]/60 shadow-[0_0_40px_rgba(0,229,255,0.15),inset_0_0_40px_rgba(0,229,255,0.03)] p-8 min-w-[20rem]"
+          ? "bg-[#0d0d1a] rounded-sm border border-[#00e5ff]/60 shadow-[0_0_40px_rgba(0,229,255,0.15),inset_0_0_40px_rgba(0,229,255,0.03)] p-8 min-w-[20rem]"
           : "bg-white/30 border border-white/50 backdrop-blur-2xl rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.15)] p-8 min-w-[20rem]";
 
   return createPortal(
@@ -57,6 +57,7 @@ export const Dialog: FC<DialogProps> = ({
         className={`${panelClasses} ${className}`}
         onClick={(e) => e.stopPropagation()}
         {...props}
+        style={isCyberpunk ? { color: '#c0c0d0' } : undefined}
       >
         {title && (
           <div className="flex items-center justify-between mb-5">
