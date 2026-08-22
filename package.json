@@ -13,6 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:sudoku": "cd apps/sudoku && npm run dev",
+    "build:sudoku": "cd apps/sudoku && npm run build",
     "setup": "npm install && npm run setup:core:ui",
     "setup:core:ui": "cd core/ui && npm run build"
   }
