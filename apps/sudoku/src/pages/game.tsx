@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/refs */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { Button, Dialog } from "@core/ui";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Board } from "../components/board";
 import { NumberHintBar } from "../components/number-hint-bar";
@@ -51,6 +51,83 @@ const isBoardValid = (board: number[][]) => {
 
 const isBoardComplete = (board: number[][]) =>
   isBoardFull(board) && isBoardValid(board);
+
+const computeInvalidCells = (
+  board: number[][],
+  given: boolean[][],
+): boolean[][] => {
+  const invalid: boolean[][] = Array.from({ length: 9 }, () =>
+    Array(9).fill(false),
+  );
+  if (board.length < 9 || board[0]?.length < 9) return invalid;
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const val = board[r]?.[c];
+      if (val === undefined || val === 0 || given[r]?.[c]) continue;
+      for (let i = 0; i < 9; i++) {
+        if (i !== c && board[r][i] === val) { invalid[r][c] = true; break; }
+      }
+      if (invalid[r][c]) continue;
+      for (let i = 0; i < 9; i++) {
+        if (i !== r && board[i][c] === val) { invalid[r][c] = true; break; }
+      }
+      if (invalid[r][c]) continue;
+      const boxR = Math.floor(r / 3) * 3;
+      const boxC = Math.floor(c / 3) * 3;
+      outer: for (let br = boxR; br < boxR + 3; br++) {
+        for (let bc = boxC; bc < boxC + 3; bc++) {
+          if ((br !== r || bc !== c) && board[br][bc] === val) {
+            invalid[r][c] = true;
+            break outer;
+          }
+        }
+      }
+    }
+  }
+  return invalid;
+};
+
+const isValidAt = (
+  board: number[][],
+  r: number,
+  c: number,
+  num: number,
+): boolean => {
+  for (let i = 0; i < 9; i++) {
+    if (board[r][i] === num || board[i][c] === num) return false;
+  }
+  const boxR = Math.floor(r / 3) * 3;
+  const boxC = Math.floor(c / 3) * 3;
+  for (let br = boxR; br < boxR + 3; br++) {
+    for (let bc = boxC; bc < boxC + 3; bc++) {
+      if (board[br][bc] === num) return false;
+    }
+  }
+  return true;
+};
+
+const solveBoard = (grid: number[][]): boolean => {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0) {
+        for (let num = 1; num <= 9; num++) {
+          if (isValidAt(grid, r, c, num)) {
+            grid[r][c] = num;
+            if (solveBoard(grid)) return true;
+            grid[r][c] = 0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+const isBoardSolvable = (board: number[][]): boolean => {
+  const copy = board.map((row) => [...row]);
+  return solveBoard(copy);
+};
 
 const HINT_COINS_BY_DIFFICULTY: Record<Level, number> = {
   easy: 3,
@@ -106,6 +183,7 @@ export const Game = () => {
   const [showRestartDialog, setShowRestartDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showBackDialog, setShowBackDialog] = useState(false);
+  const [showGameOverDialog, setShowGameOverDialog] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
 
   const isNew = query[0].get("isNew") ?? true;
@@ -117,6 +195,10 @@ export const Game = () => {
   // since the stacks themselves live in refs.
   const canUndo = historyVersion >= 0 && undoStackRef.current.length > 0;
   const canRedo = historyVersion >= 0 && redoStackRef.current.length > 0;
+  const invalidCells = useMemo(
+    () => computeInvalidCells(gameState.board, gameState.given),
+    [gameState.board, gameState.given],
+  );
   const timerRef = useRef<{
     getTime: () => number;
     pause: () => void;
@@ -232,6 +314,12 @@ export const Game = () => {
         setRank(earnedRank);
         setStatus("completed");
         localStorage.removeItem("sudokuGameState");
+      } else if (newValue !== 0 && !hasCompletedRef.current) {
+        const newInvalid = computeInvalidCells(newBoard, prevState.given);
+        const hasConflict = newInvalid.some((r) => r.some((v) => v));
+        if (hasConflict || !isBoardSolvable(newBoard)) {
+          setShowGameOverDialog(true);
+        }
       }
 
       return nextState;
@@ -284,6 +372,7 @@ export const Game = () => {
     setSelected(null);
     setHistoryVersion((v) => v + 1);
     setShowRestartDialog(false);
+    setShowGameOverDialog(false);
     timerRef.current?.resume();
   };
 
@@ -474,6 +563,7 @@ export const Game = () => {
           board={gameState.board}
           memo={gameState.memo}
           given={gameState.given}
+          invalidCells={invalidCells}
           status={
             showRestartDialog || showBackDialog
               ? "paused"
@@ -597,8 +687,31 @@ export const Game = () => {
         </div>
       </Dialog>
 
-      <Dialog open={status === "completed"} title="🎉 Congratulations!">
+      <Dialog
+        open={showGameOverDialog}
+        onClose={() => setShowGameOverDialog(false)}
+        title="Game Over"
+      >
         <div className="flex flex-col gap-3 min-w-56">
+          <p>
+            The board can no longer be completed with the current values. You
+            can restart to try again.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => setShowGameOverDialog(false)}
+            >
+              Dismiss
+            </Button>
+            <Button variant="danger" onClick={handleRestart}>
+              Restart
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog open={status === "completed"} title="🎉 Congratulations!">        <div className="flex flex-col gap-3 min-w-56">
           <p>You solved the puzzle!</p>
           <p>
             Your time:{" "}

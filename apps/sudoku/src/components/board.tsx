@@ -1,10 +1,12 @@
 import { useTheme } from "@core/ui";
-import { useState, type MouseEvent } from "react";
+import { useRef, useState, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 
 export type BoardProps = {
   board: number[][];
   memo?: string[][][];
   given?: boolean[][];
+  invalidCells?: boolean[][];
   status?: "playing" | "paused" | "completed";
   hoveredNumber?: number | null;
   hintNumber?: number | null;
@@ -49,6 +51,7 @@ export const BoardCell = ({
   isGiven,
   isSelected,
   isHighlighted,
+  isInvalid,
   hintNumber,
   onSelect,
   onChange,
@@ -58,50 +61,60 @@ export const BoardCell = ({
   isGiven?: boolean;
   isSelected?: boolean;
   isHighlighted?: boolean;
+  isInvalid?: boolean;
   hintNumber?: number | null;
   onSelect?: () => void;
   onChange?: (newValue: number, newMemo?: string[]) => void;
 }) => {
-  const [showMemoPopup, setShowMemoPopup] = useState<{
-    x: number;
-    y: number;
-  }>();
+  const cellRef = useRef<HTMLDivElement>(null);
+  const [memoPopupRect, setMemoPopupRect] = useState<{
+    top: number;
+    bottom: number;
+    left: number;
+    width: number;
+  } | null>(null);
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
 
-  const bgClass = isNeu
-    ? isGiven
-      ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
-      : isSelected
-        ? "bg-blue-100 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-3px_-3px_6px_rgba(255,255,255,0.6)]"
-        : isHighlighted
-          ? "bg-sky-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)]"
-          : "bg-gray-200 hover:brightness-105"
-    : isMaterial
-      ? isGiven
-        ? "bg-gray-100"
-        : isSelected
-          ? "bg-blue-100"
-          : isHighlighted
-            ? "bg-sky-100"
-            : "bg-white hover:bg-gray-50"
+  const bgClass = isInvalid
+    ? isNeu
+      ? "bg-red-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]"
       : isCupertino
+        ? "bg-red-50"
+        : "bg-red-100"
+    : isNeu
+      ? isGiven
+        ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
+        : isSelected
+          ? "bg-blue-100 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-3px_-3px_6px_rgba(255,255,255,0.6)]"
+          : isHighlighted
+            ? "bg-sky-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.6)]"
+            : "bg-gray-200 hover:brightness-105"
+      : isMaterial
         ? isGiven
-          ? "bg-[#F2F2F7]"
+          ? "bg-gray-100"
           : isSelected
-            ? "bg-[#007AFF]/15"
+            ? "bg-blue-100"
             : isHighlighted
-              ? "bg-[#007AFF]/10"
-              : "bg-white hover:bg-[#F2F2F7]"
-        : isGiven
-          ? "bg-white/40"
-          : isSelected
-            ? "bg-blue-300/50"
-            : isHighlighted
-              ? "bg-sky-300/40"
-              : "bg-white/15 hover:bg-white/25";
+              ? "bg-sky-100"
+              : "bg-white hover:bg-gray-50"
+        : isCupertino
+          ? isGiven
+            ? "bg-[#F2F2F7]"
+            : isSelected
+              ? "bg-[#007AFF]/15"
+              : isHighlighted
+                ? "bg-[#007AFF]/10"
+                : "bg-white hover:bg-[#F2F2F7]"
+          : isGiven
+            ? "bg-white/40"
+            : isSelected
+              ? "bg-blue-300/50"
+              : isHighlighted
+                ? "bg-sky-300/40"
+                : "bg-white/15 hover:bg-white/25";
 
   const handleCellClick = () => {
     onSelect?.();
@@ -122,11 +135,15 @@ export const BoardCell = ({
       return;
     }
 
-    setShowMemoPopup({ x: e.clientX, y: e.clientY });
+    const rect = cellRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMemoPopupRect({ top: rect.top, bottom: rect.bottom, left: rect.left, width: rect.width });
+    }
   };
 
   return (
     <div
+      ref={cellRef}
       className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
         isNeu || isMaterial || isCupertino ? "" : "backdrop-blur-md"
       } ${bgClass}`}
@@ -138,7 +155,7 @@ export const BoardCell = ({
       ) : (
         <input
           style={{ width: "100%", height: "100%", textAlign: "center" }}
-          className="bg-transparent relative z-10 text-gray-900 font-semibold outline-none"
+          className={`bg-transparent relative z-10 font-semibold outline-none ${isInvalid ? "text-red-500" : "text-gray-900"}`}
           type="text"
           value={value === 0 ? "" : value}
           onChange={(e) => {
@@ -160,63 +177,80 @@ export const BoardCell = ({
           ))}
         </div>
       )}
-      {/* memo popover with 9 grid - click each grid cell to memo that number - should close when other parts are clicked */}
-      {showMemoPopup && !isGiven && (
-        <>
-          <div
-            className="fixed inset-0 z-20"
-            onClick={() => setShowMemoPopup(undefined)}
-          />
-          <dialog
-            open={!!showMemoPopup}
-            className={`absolute p-2 z-30 w-fit h-fit top-full left-1/2 -translate-x-1/2 rounded-xl ${
-              isNeu
-                ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.25),-8px_-8px_16px_rgba(255,255,255,0.7)]"
-                : isMaterial
-                  ? "bg-white shadow-xl"
-                  : isCupertino
-                    ? "bg-white/95 backdrop-blur-xl border border-[#E5E5EA] shadow-lg"
-                    : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
-            }`}
-          >
-            <div className="grid grid-cols-3 gap-1 w-max h-max">
-              {MEMO_NUMS.map((num) => {
-                const selected = memo?.includes(num.toString());
-                return (
-                  <button
-                    key={num}
-                    className={`rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${
-                      isNeu
-                        ? selected
-                          ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
-                          : "bg-gray-200 shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:brightness-105"
-                        : isMaterial
-                          ? selected
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-50 hover:bg-gray-100"
-                          : isCupertino
-                            ? selected
-                              ? "bg-[#007AFF] text-white"
-                              : "bg-[#F2F2F7] hover:bg-[#E5E5EA]"
-                            : selected
-                              ? "border border-white/40 bg-blue-300/50"
-                              : "border border-white/40 bg-white/20 hover:bg-white/40"
-                    }`}
-                    onClick={() => {
-                      const newMemo = memo?.includes(num.toString())
-                        ? memo.filter((m) => m !== num.toString())
-                        : [...(memo || []), num.toString()];
-                      onChange?.(value, newMemo);
-                    }}
-                  >
-                    {num}
-                  </button>
-                );
-              })}
-            </div>
-          </dialog>
-        </>
-      )}
+      {/* memo popover rendered into body via portal to escape overflow-hidden */}
+      {memoPopupRect && !isGiven &&
+        createPortal(
+          (() => {
+            const POPUP_HEIGHT = 124; // approx height of 3-row grid + padding
+            const spaceBelow = window.innerHeight - memoPopupRect.bottom;
+            const top =
+              spaceBelow >= POPUP_HEIGHT + 6
+                ? memoPopupRect.bottom + 6
+                : memoPopupRect.top - POPUP_HEIGHT - 6;
+            return (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setMemoPopupRect(null)}
+                />
+                <dialog
+                  open
+                  className={`fixed p-2 z-50 w-fit h-fit rounded-xl ${
+                    isNeu
+                      ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.25),-8px_-8px_16px_rgba(255,255,255,0.7)]"
+                      : isMaterial
+                        ? "bg-white shadow-xl"
+                        : isCupertino
+                          ? "bg-white/95 backdrop-blur-xl border border-[#E5E5EA] shadow-lg"
+                          : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
+                  }`}
+                  style={{
+                    top,
+                    left: memoPopupRect.left + memoPopupRect.width / 2,
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  <div className="grid grid-cols-3 gap-1 w-max h-max">
+                    {MEMO_NUMS.map((num) => {
+                      const selected = memo?.includes(num.toString());
+                      return (
+                        <button
+                          key={num}
+                          className={`rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${
+                            isNeu
+                              ? selected
+                                ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
+                                : "bg-gray-200 shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:brightness-105"
+                              : isMaterial
+                                ? selected
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-gray-50 hover:bg-gray-100"
+                                : isCupertino
+                                  ? selected
+                                    ? "bg-[#007AFF] text-white"
+                                    : "bg-[#F2F2F7] hover:bg-[#E5E5EA]"
+                                  : selected
+                                    ? "border border-white/40 bg-blue-300/50"
+                                    : "border border-white/40 bg-white/20 hover:bg-white/40"
+                          }`}
+                          onClick={() => {
+                            const newMemo = memo?.includes(num.toString())
+                              ? memo.filter((m) => m !== num.toString())
+                              : [...(memo || []), num.toString()];
+                            onChange?.(value, newMemo);
+                          }}
+                        >
+                          {num}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </dialog>
+              </>
+            );
+          })(),
+          document.body,
+        )}
     </div>
   );
 };
@@ -225,6 +259,7 @@ export const Board = ({
   board,
   memo,
   given,
+  invalidCells,
   status,
   hoveredNumber,
   hintNumber,
@@ -294,6 +329,7 @@ export const Board = ({
               value={cell}
               memo={memo?.[rowIndex]?.[colIndex]}
               isGiven={given?.[rowIndex]?.[colIndex]}
+              isInvalid={invalidCells?.[rowIndex]?.[colIndex]}
               isSelected={
                 selected?.row === rowIndex && selected?.col === colIndex
               }

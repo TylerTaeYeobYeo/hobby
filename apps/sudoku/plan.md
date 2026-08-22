@@ -149,3 +149,19 @@
 - [x] `apps/sudoku`: Branch `App.tsx`, `Board`/`BoardCell`, `NumberHintBar`, `Timer` styling for the `"material"` theme
 - [x] Update `Menu` page's Theme `Tabs` to include all three options (Glass / Neumorphism / Material)
 - [x] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes
+
+## Board Validation
+
+### Fix: `text-red-500` not applying to cell text
+- [x] Root cause: `BoardCell` input and given-value span have hardcoded text color classes (`text-gray-900` / `text-gray-800`) that block CSS inheritance from a parent; parent-level `text-red-500` cannot override them
+- [x] Fix: make the text color class dynamic on the input/span directly, driven by the new `isInvalid` prop
+
+### Cell-level conflict highlighting
+- [x] Add `isInvalid?: boolean` prop to `BoardCell`; invalid cells show a red background tint and red text (user-placed only — given cells are never invalid)
+- [x] Add `invalidCells?: boolean[][]` prop to `Board` and thread it down to each `BoardCell`
+- [x] `computeInvalidCells(board, given)` in `game.tsx`: for every non-given, non-empty cell check for duplicate value in its row, column, or 3×3 box; mark as invalid if any conflict found
+
+### Board completability ("Game Over")
+- [x] `isBoardSolvable(board)` in `game.tsx`: backtracking solver that treats all currently filled cells as fixed and tries to complete the remaining empty cells; returns `false` when no completion is possible
+- [x] After every user move that places a value (`newValue !== 0`): if the board has any invalid cells OR the solver returns `false`, set `showGameOverDialog = true`; reset when the board returns to a solvable state
+- [x] "Game Over" `Dialog` (title "Game Over") explains the board cannot be completed; offers "Restart" (triggers full restart) and "Dismiss" (closes dialog without restarting — user keeps the broken state)
