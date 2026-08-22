@@ -70,18 +70,36 @@ export const Game = () => {
         status={status}
         canUndo={canUndo}
         canRedo={canRedo}
-        onBack={() => { timerRef.current?.pause(); setShowBackDialog(true); }}
-        onTogglePause={() => {
-          if (status === "playing") { timerRef.current?.pause(); setStatus("paused"); }
-          else if (status === "paused") { timerRef.current?.resume(); setStatus("playing"); }
+        onBack={() => {
+          timerRef.current?.pause();
+          setShowBackDialog(true);
         }}
-        onRestartClick={() => { timerRef.current?.pause(); setShowRestartDialog(true); }}
+        onTogglePause={() => {
+          if (status === "playing") {
+            timerRef.current?.pause();
+            setStatus("paused");
+          } else if (status === "paused") {
+            timerRef.current?.resume();
+            setStatus("playing");
+          }
+        }}
+        onRestartClick={() => {
+          timerRef.current?.pause();
+          setShowRestartDialog(true);
+        }}
         onUndo={handleUndo}
         onRedo={handleRedo}
-        onSave={() => { timerRef.current?.pause(); setStatus("paused"); setShowSaveDialog(true); }}
+        onSave={() => {
+          timerRef.current?.pause();
+          setStatus("paused");
+          setShowSaveDialog(true);
+        }}
       />
 
-      <div className="flex justify-center items-center mt-4" ref={boardContainerRef}>
+      <div
+        className="flex justify-center items-center mt-4"
+        ref={boardContainerRef}
+      >
         <Board
           board={gameState.board}
           memo={gameState.memo}
@@ -96,37 +114,62 @@ export const Game = () => {
         />
       </div>
 
-      <div className={`flex flex-col items-center gap-2 ${status === "paused" || showGameOverDialog ? "invisible" : ""}`}>
+      <div
+        className={`flex flex-col items-center gap-2 ${boardStatus !== "playing" ? "invisible" : ""}`}
+      >
         <NumberHintBar
           board={gameState.board}
           activeNumber={hintModeNumber}
           onHover={setHoveredNumber}
-          onClickNumber={(num) => setHintModeNumber((prev) => (prev === num ? null : num))}
+          onClickNumber={(num) =>
+            setHintModeNumber((prev) => (prev === num ? null : num))
+          }
         />
-        <Button variant="secondary" onClick={handleHint} disabled={status !== "playing" || hintCoins <= 0}>
+        <Button
+          variant="secondary"
+          onClick={handleHint}
+          disabled={status !== "playing" || hintCoins <= 0}
+        >
           💡 Hint ({hintCoins})
         </Button>
       </div>
 
       <RestartDialog
         open={showRestartDialog}
-        onCancel={() => { setShowRestartDialog(false); timerRef.current?.resume(); }}
+        onCancel={() => {
+          setShowRestartDialog(false);
+          timerRef.current?.resume();
+        }}
         onConfirm={handleRestart}
       />
       <SaveDialog
         open={showSaveDialog}
-        onCancel={() => { setShowSaveDialog(false); timerRef.current?.resume(); setStatus("playing"); }}
+        onCancel={() => {
+          setShowSaveDialog(false);
+          timerRef.current?.resume();
+          setStatus("playing");
+        }}
         onConfirm={handleSaveConfirm}
       />
       <LeaveDialog
         open={showBackDialog}
-        onCancel={() => { setShowBackDialog(false); timerRef.current?.resume(); }}
+        onCancel={() => {
+          setShowBackDialog(false);
+          timerRef.current?.resume();
+        }}
         onConfirm={handleBackConfirm}
       />
       <GameOverDialog
         open={showGameOverDialog}
-        onDismiss={() => { setShowGameOverDialog(false); timerRef.current?.resume(); }}
-        onUndo={() => { setShowGameOverDialog(false); handleUndo(); timerRef.current?.resume(); }}
+        onDismiss={() => {
+          setShowGameOverDialog(false);
+          timerRef.current?.resume();
+        }}
+        onUndo={() => {
+          setShowGameOverDialog(false);
+          handleUndo();
+          timerRef.current?.resume();
+        }}
         onRestart={handleRestart}
       />
       <CongratulationsDialog

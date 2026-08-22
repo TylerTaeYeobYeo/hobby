@@ -1,6 +1,6 @@
 import { useTheme } from "@core/ui";
-import { BoardCell } from "./board-cell";
 import { shouldHighlightCell } from "../util/sudoku-validation";
+import { BoardCell } from "./board-cell";
 
 export type BoardProps = {
   board: number[][];
