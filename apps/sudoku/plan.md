@@ -98,6 +98,10 @@
 ## Restart Feature
 
 - [x] Remove the "Erase" button from the game toolbar
+- [x] Add a "Restart" button in its place
+- [x] Clicking "Restart" opens a confirmation `Dialog` (uses core/ui `Dialog` + `Button`)
+- [x] On confirm: reset `board` back to the original given values (clear all user-entered values), clear all memos, keep `given` mask unchanged, reset timer to 0 and keep it running (or paused state as appropriate), reset hint/undo history state as appropriate
+- [x] On cancel: close dialog with no changes
 
 ## Cupertino Theme
 
@@ -110,10 +114,6 @@
 - [x] Add Cupertino styles to `NumberHintBar` (white container, iOS blue active state)
 - [x] Add Cupertino styles to `BoardCell` (white normal, `#007AFF/15` selected, `#007AFF/10` highlighted, `#F2F2F7` given)
 - [x] Add Cupertino styles to `Timer` (white panel, light border)
-- [x] Add a "Restart" button in its place
-- [x] Clicking "Restart" opens a confirmation `Dialog` (uses core/ui `Dialog` + `Button`)
-- [x] On confirm: reset `board` back to the original given values (clear all user-entered values), clear all memos, keep `given` mask unchanged, reset timer to 0 and keep it running (or paused state as appropriate), reset hint/undo history state as appropriate
-- [x] On cancel: close dialog with no changes
 
 ## Undo/Redo Feature
 
@@ -141,11 +141,11 @@
 
 ## Save Confirmation, Back Button, Hint Bar Placeholder, Material Theme
 
-- [ ] Clicking "Save" on the game page opens a confirmation `Dialog` before actually saving + navigating away (uses core/ui `Dialog` + `Button`); confirm saves and returns to menu, cancel closes dialog with no changes
-- [ ] Add a "Back" button on the game page (navigates to menu without saving); should prompt/pause appropriately similar to other navigation actions
-- [ ] When game is paused, hide `NumberHintBar` and the Hint `Button` visually but reserve their layout space (e.g. `invisible` instead of unmounting/conditional render) so the page doesn't shift
-- [ ] `core/ui`: Add a third `"material"` theme option to `ThemeProvider`/`useTheme` (Material Design style: elevation shadows, solid fill colors, ripple-like hover/active states) and make it the new default theme
-- [ ] `core/ui`: Branch `Button`, `Dialog`, `Tabs` styling for the `"material"` theme
-- [ ] `apps/sudoku`: Branch `App.tsx`, `Board`/`BoardCell`, `NumberHintBar`, `Timer` styling for the `"material"` theme
-- [ ] Update `Menu` page's Theme `Tabs` to include all three options (Glass / Neumorphism / Material)
-- [ ] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes
+- [x] Clicking "Save" on the game page opens a confirmation `Dialog` before actually saving + navigating away (uses core/ui `Dialog` + `Button`); confirm saves and returns to menu, cancel closes dialog with no changes
+- [x] Add a "Back" button on the game page (navigates to menu without saving); should prompt/pause appropriately similar to other navigation actions
+- [x] When game is paused, hide `NumberHintBar` and the Hint `Button` visually but reserve their layout space (e.g. `invisible` instead of unmounting/conditional render) so the page doesn't shift
+- [x] `core/ui`: Add a third `"material"` theme option to `ThemeProvider`/`useTheme` (Material Design style: elevation shadows, solid fill colors, ripple-like hover/active states) and make it the new default theme
+- [x] `core/ui`: Branch `Button`, `Dialog`, `Tabs` styling for the `"material"` theme
+- [x] `apps/sudoku`: Branch `App.tsx`, `Board`/`BoardCell`, `NumberHintBar`, `Timer` styling for the `"material"` theme
+- [x] Update `Menu` page's Theme `Tabs` to include all three options (Glass / Neumorphism / Material)
+- [x] Verify no TypeScript/lint errors across changed files; rebuild `core/ui` after changes
