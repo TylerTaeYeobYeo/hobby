@@ -203,6 +203,7 @@ export const Game = () => {
     getTime: () => number;
     pause: () => void;
     resume: () => void;
+    reset: () => void;
   } | null>(null);
 
   useLayoutEffect(() => {
@@ -318,6 +319,7 @@ export const Game = () => {
         const newInvalid = computeInvalidCells(newBoard, prevState.given);
         const hasConflict = newInvalid.some((r) => r.some((v) => v));
         if (hasConflict || !isBoardSolvable(newBoard)) {
+          timerRef.current?.pause();
           setShowGameOverDialog(true);
         }
       }
@@ -371,9 +373,10 @@ export const Game = () => {
     hasCompletedRef.current = false;
     setSelected(null);
     setHistoryVersion((v) => v + 1);
+    setStatus("playing");
     setShowRestartDialog(false);
     setShowGameOverDialog(false);
-    timerRef.current?.resume();
+    timerRef.current?.reset();
   };
 
   const persistGameState = () => {
@@ -565,7 +568,7 @@ export const Game = () => {
           given={gameState.given}
           invalidCells={invalidCells}
           status={
-            showRestartDialog || showBackDialog
+            showRestartDialog || showBackDialog || showGameOverDialog
               ? "paused"
               : status === "completed"
                 ? "playing"
@@ -580,7 +583,7 @@ export const Game = () => {
       </div>
       <div
         className={`flex flex-col items-center gap-2 ${
-          status === "paused" ? "invisible" : ""
+          status === "paused" || showGameOverDialog ? "invisible" : ""
         }`}
       >
         <NumberHintBar
@@ -689,7 +692,10 @@ export const Game = () => {
 
       <Dialog
         open={showGameOverDialog}
-        onClose={() => setShowGameOverDialog(false)}
+        onClose={() => {
+          setShowGameOverDialog(false);
+          timerRef.current?.resume();
+        }}
         title="Game Over"
       >
         <div className="flex flex-col gap-3 min-w-56">
@@ -700,9 +706,13 @@ export const Game = () => {
           <div className="flex gap-2 justify-end">
             <Button
               variant="secondary"
-              onClick={() => setShowGameOverDialog(false)}
+              onClick={() => {
+                setShowGameOverDialog(false);
+                handleUndo();
+                timerRef.current?.resume();
+              }}
             >
-              Dismiss
+              Undo
             </Button>
             <Button variant="danger" onClick={handleRestart}>
               Restart
@@ -711,7 +721,12 @@ export const Game = () => {
         </div>
       </Dialog>
 
-      <Dialog open={status === "completed"} title="🎉 Congratulations!">        <div className="flex flex-col gap-3 min-w-56">
+      <Dialog
+        open={status === "completed"}
+        onClose={() => {}}
+        title="🎉 Congratulations!"
+      >
+        <div className="flex flex-col gap-3 min-w-56">
           <p>You solved the puzzle!</p>
           <p>
             Your time:{" "}

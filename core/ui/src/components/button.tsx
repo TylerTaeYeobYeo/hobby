@@ -70,7 +70,7 @@ const cupertinoVariantClasses: Record<ButtonVariant, string> = {
   ghost:
     "bg-transparent text-[#007AFF] border-transparent hover:bg-[#007AFF]/10 active:bg-[#007AFF]/20",
   danger:
-    "bg-[#FF3B30] text-white hover:bg-[#E6352B] active:bg-[#CC2F25] border-transparent shadow-sm",
+    "bg-[#FF3B30] text-red-500 hover:bg-[#E6352B] active:bg-[#CC2F25] border-transparent shadow-sm",
 };
 
 const cupertinoDisabledClasses =

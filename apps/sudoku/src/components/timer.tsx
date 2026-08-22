@@ -12,6 +12,7 @@ export const Timer = forwardRef<
     getTime: () => number;
     pause: () => void;
     resume: () => void;
+    reset: () => void;
   },
   { startTime: number }
 >(({ startTime = 0 }, ref) => {
@@ -52,6 +53,12 @@ export const Timer = forwardRef<
         }
       },
       resume,
+      reset: () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        elapsedTimeRef.current = 0;
+        if (divRef.current) divRef.current.textContent = "0.00 seconds";
+        resume();
+      },
     }),
     [elapsedTimeRef, resume],
   );
