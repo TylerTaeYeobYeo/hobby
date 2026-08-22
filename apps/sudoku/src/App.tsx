@@ -48,7 +48,9 @@ export const App = () => {
                     : "flex flex-col items-center gap-4 rounded-3xl border border-white/40 bg-white/25 p-8 shadow-2xl backdrop-blur-2xl"
           }
         >
-          <h1 className={`text-4xl font-bold drop-shadow-sm ${isCyberpunk ? "text-[#ff2d78] font-mono tracking-wider [text-shadow:0_0_20px_rgba(255,45,120,0.6)]" : "text-gray-800"}`}>
+          <h1
+            className={`text-4xl font-bold drop-shadow-sm ${isCyberpunk ? "text-[#ff2d78] font-mono tracking-wider [text-shadow:0_0_20px_rgba(255,45,120,0.6)]" : "text-gray-800"}`}
+          >
             Sudoku
           </h1>
           <Outlet />

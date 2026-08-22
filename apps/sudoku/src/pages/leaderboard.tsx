@@ -33,7 +33,11 @@ export const Leaderboard = () => {
         }`}
       >
         {scores.length === 0 ? (
-          <p className={`text-center py-4 ${isCyberpunk ? "text-[#4a4a6a]" : "text-gray-600"}`}>No scores yet.</p>
+          <p
+            className={`text-center py-4 ${isCyberpunk ? "text-[#4a4a6a]" : "text-gray-600"}`}
+          >
+            No scores yet.
+          </p>
         ) : (
           scores.map((entry, index) => (
             <div
@@ -46,9 +50,19 @@ export const Leaderboard = () => {
                     : "bg-white/20 hover:bg-white/30 border border-white/20"
               }`}
             >
-              <span className={`font-semibold ${isCyberpunk ? "text-[#ff2d78]" : "text-gray-800"}`}>#{index + 1}</span>
-              <span className={isCyberpunk ? "text-[#00e5ff]" : "text-gray-800"}>{formatTime(entry.time)}</span>
-              <span className={`text-sm ${isCyberpunk ? "text-[#4a4a6a]" : "text-gray-500"}`}>
+              <span
+                className={`font-semibold ${isCyberpunk ? "text-[#ff2d78]" : "text-gray-800"}`}
+              >
+                #{index + 1}
+              </span>
+              <span
+                className={isCyberpunk ? "text-[#00e5ff]" : "text-gray-800"}
+              >
+                {formatTime(entry.time)}
+              </span>
+              <span
+                className={`text-sm ${isCyberpunk ? "text-[#4a4a6a]" : "text-gray-500"}`}
+              >
                 {new Date(entry.date).toLocaleDateString()}
               </span>
             </div>
