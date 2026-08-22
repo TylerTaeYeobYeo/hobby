@@ -77,13 +77,16 @@ export const BoardCell = ({
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
+  const isCyberpunk = theme === "cyberpunk";
 
   const bgClass = isInvalid
     ? isNeu
       ? "bg-red-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]"
       : isCupertino
         ? "bg-red-50"
-        : "bg-red-100"
+        : isCyberpunk
+          ? "bg-[#ff4444]/10"
+          : "bg-red-100"
     : isNeu
       ? isGiven
         ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
@@ -108,6 +111,14 @@ export const BoardCell = ({
               : isHighlighted
                 ? "bg-[#007AFF]/10"
                 : "bg-white hover:bg-[#F2F2F7]"
+          : isCyberpunk
+            ? isGiven
+              ? "bg-[#1a1a2e]"
+              : isSelected
+                ? "bg-[#ff2d78]/10"
+                : isHighlighted
+                  ? "bg-[#00e5ff]/8"
+                  : "bg-[#12121f] hover:bg-[#1a1a2e]"
           : isGiven
             ? "bg-white/40"
             : isSelected
@@ -145,17 +156,17 @@ export const BoardCell = ({
     <div
       ref={cellRef}
       className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
-        isNeu || isMaterial || isCupertino ? "" : "backdrop-blur-md"
+        isNeu || isMaterial || isCupertino || isCyberpunk ? "" : "backdrop-blur-md"
       } ${bgClass}`}
       onContextMenu={handleCellRightClick}
       onClick={handleCellClick}
     >
       {isGiven ? (
-        <span className="font-bold text-gray-800 select-none">{value}</span>
+        <span className={`font-bold select-none ${isCyberpunk ? "text-[#00e5ff] font-mono" : "text-gray-800"}`}>{value}</span>
       ) : (
         <input
           style={{ width: "100%", height: "100%", textAlign: "center" }}
-          className={`bg-transparent relative z-10 font-semibold outline-none ${isInvalid ? "text-red-500" : "text-gray-900"}`}
+          className={`bg-transparent relative z-10 font-semibold outline-none ${isInvalid ? "text-red-500" : isCyberpunk ? "text-[#e0e0ff] font-mono" : "text-gray-900"}`}
           type="text"
           value={value === 0 ? "" : value}
           onChange={(e) => {
@@ -169,7 +180,7 @@ export const BoardCell = ({
         />
       )}
       {value === 0 && memo && memo.length > 0 && (
-        <div className="grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none text-gray-600 absolute inset-0">
+        <div className={`grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none absolute inset-0 ${isCyberpunk ? "text-[#4a6a8a]" : "text-gray-600"}`}>
           {MEMO_NUMS.map((num) => (
             <div key={num} className="flex items-center justify-center">
               {memo.includes(num.toString()) ? num : ""}
@@ -202,7 +213,9 @@ export const BoardCell = ({
                         ? "bg-white shadow-xl"
                         : isCupertino
                           ? "bg-white/95 backdrop-blur-xl border border-[#E5E5EA] shadow-lg"
-                          : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
+                          : isCyberpunk
+                            ? "bg-[#0d0d1a] border border-[#00e5ff]/60 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+                            : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
                   }`}
                   style={{
                     top,
@@ -229,9 +242,13 @@ export const BoardCell = ({
                                   ? selected
                                     ? "bg-[#007AFF] text-white"
                                     : "bg-[#F2F2F7] hover:bg-[#E5E5EA]"
-                                  : selected
-                                    ? "border border-white/40 bg-blue-300/50"
-                                    : "border border-white/40 bg-white/20 hover:bg-white/40"
+                                  : isCyberpunk
+                                    ? selected
+                                      ? "bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.4)]"
+                                      : "bg-[#12121f] text-[#4a6a8a] border border-[#4a4a6a]/30 hover:border-[#00e5ff]/50 hover:text-[#00e5ff]"
+                                    : selected
+                                      ? "border border-white/40 bg-blue-300/50"
+                                      : "border border-white/40 bg-white/20 hover:bg-white/40"
                           }`}
                           onClick={() => {
                             const newMemo = memo?.includes(num.toString())
@@ -270,6 +287,7 @@ export const Board = ({
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
+  const isCyberpunk = theme === "cyberpunk";
 
   const CELL_SIZE = 48; // px, matches w-12/h-12
   const DIVIDER_SIZE = 6; // px
@@ -284,7 +302,9 @@ export const Board = ({
             ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
             : isMaterial
               ? "bg-white shadow-lg"
-              : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
+              : isCyberpunk
+                ? "bg-[#12121f] border border-[#00e5ff]/30 text-[#00e5ff]"
+                : "border border-white/50 bg-white/30 backdrop-blur-md shadow-2xl"
         }`}
         style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
       >
@@ -308,7 +328,9 @@ export const Board = ({
           ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
           : isMaterial
             ? "bg-white shadow-lg"
-            : "bg-white/40 border border-white/50 shadow-2xl backdrop-blur-md"
+            : isCyberpunk
+              ? "bg-[#0d0d1a] border border-[#00e5ff]/30 shadow-[0_0_30px_rgba(0,229,255,0.1)] rounded-sm"
+              : "bg-white/40 border border-white/50 shadow-2xl backdrop-blur-md"
       }`}
       style={{
         display: "grid",

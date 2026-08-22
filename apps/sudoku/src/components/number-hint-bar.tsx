@@ -30,6 +30,7 @@ export const NumberHintBar = ({
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
+  const isCyberpunk = theme === "cyberpunk";
 
   return (
     <div
@@ -40,7 +41,9 @@ export const NumberHintBar = ({
             ? "bg-white shadow-md"
             : isCupertino
               ? "bg-white border border-[#E5E5EA] shadow-sm"
-              : "border border-white/40 bg-white/20 backdrop-blur-md shadow-lg"
+              : isCyberpunk
+                ? "bg-[#12121f] border border-[#00e5ff]/30 shadow-[0_0_15px_rgba(0,229,255,0.08)] rounded-sm"
+                : "border border-white/40 bg-white/20 backdrop-blur-md shadow-lg"
       }`}
     >
       {NUMS.map((num) => {
@@ -66,6 +69,11 @@ export const NumberHintBar = ({
           : isActive
             ? "bg-[#007AFF] text-white cursor-pointer"
             : "bg-[#F2F2F7] text-gray-800 hover:bg-[#E5E5EA] cursor-pointer";
+        const cyberpunkClasses = complete
+          ? "text-[#4a4a6a] bg-[#0d0d1a] border border-[#4a4a6a]/30 cursor-default"
+          : isActive
+            ? "bg-[#ff2d78]/15 text-[#ff2d78] border border-[#ff2d78] shadow-[0_0_10px_rgba(255,45,120,0.6)] cursor-pointer"
+            : "bg-[#12121f] text-[#00e5ff] border border-[#00e5ff]/30 hover:border-[#00e5ff] hover:shadow-[0_0_8px_rgba(0,229,255,0.4)] cursor-pointer";
         return (
           <button
             key={num}
@@ -76,7 +84,9 @@ export const NumberHintBar = ({
                   ? materialClasses
                   : isCupertino
                     ? cupertinoClasses
-                    : `border backdrop-blur-md ${glassClasses}`
+                    : isCyberpunk
+                      ? cyberpunkClasses
+                      : `border backdrop-blur-md ${glassClasses}`
             }`}
             onMouseEnter={() => !complete && onHover?.(num)}
             onMouseLeave={() => onHover?.(null)}

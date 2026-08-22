@@ -9,7 +9,7 @@ import {
     type ReactNode,
 } from "react";
 
-export type UiTheme = "glass" | "neumorphism" | "material" | "cupertino";
+export type UiTheme = "glass" | "neumorphism" | "material" | "cupertino" | "cyberpunk";
 
 const STORAGE_KEY = "uiTheme";
 
@@ -20,7 +20,7 @@ export type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-const VALID_THEMES: UiTheme[] = ["glass", "neumorphism", "material", "cupertino"];
+const VALID_THEMES: UiTheme[] = ["glass", "neumorphism", "material", "cupertino", "cyberpunk"];
 
 const readStoredTheme = (): UiTheme => {
   if (typeof window === "undefined") return "material";

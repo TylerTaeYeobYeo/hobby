@@ -22,6 +22,7 @@ export const Tabs = <T extends string>({
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
+  const isCyberpunk = theme === "cyberpunk";
 
   const trackClasses = isNeu
     ? "rounded-xl bg-gray-200 p-1 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.15),inset_-4px_-4px_8px_rgba(255,255,255,0.7)]"
@@ -29,7 +30,9 @@ export const Tabs = <T extends string>({
       ? "rounded-md bg-gray-100 p-1"
       : isCupertino
         ? "rounded-[10px] bg-[#E5E5EA] p-[3px]"
-        : "rounded-xl border border-white/40 bg-white/20 p-1 backdrop-blur-md shadow-inner";
+        : isCyberpunk
+          ? "rounded-sm bg-[#0d0d1a] border border-[#00e5ff]/30 p-[3px]"
+          : "rounded-xl border border-white/40 bg-white/20 p-1 backdrop-blur-md shadow-inner";
 
   return (
     <div
@@ -50,9 +53,13 @@ export const Tabs = <T extends string>({
               ? selected
                 ? "bg-white text-gray-900 shadow-sm"
                 : "bg-transparent text-gray-600 hover:text-gray-800"
-              : selected
-                ? "bg-white/70 text-gray-900 shadow-md backdrop-blur-md"
-                : "bg-transparent text-gray-600 hover:text-gray-800 hover:bg-white/30";
+              : isCyberpunk
+                ? selected
+                  ? "bg-[#00e5ff]/15 text-[#00e5ff] shadow-[0_0_8px_rgba(0,229,255,0.4)]"
+                  : "bg-transparent text-[#4a4a6a] hover:text-[#00e5ff]"
+                : selected
+                  ? "bg-white/70 text-gray-900 shadow-md backdrop-blur-md"
+                  : "bg-transparent text-gray-600 hover:text-gray-800 hover:bg-white/30";
         return (
           <button
             key={item.value}

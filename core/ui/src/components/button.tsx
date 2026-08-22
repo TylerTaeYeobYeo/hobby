@@ -79,6 +79,24 @@ const cupertinoDisabledClasses =
 const cupertinoBaseClasses =
   "rounded-xl border transition-all duration-150 font-semibold";
 
+// Cyberpunk: dark panels, neon-coloured borders with glow, monospace uppercase
+const cyberpunkVariantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-[#ff2d78]/10 text-[#ff2d78] border-[#ff2d78] shadow-[0_0_8px_rgba(255,45,120,0.5)] hover:bg-[#ff2d78]/20 hover:shadow-[0_0_16px_rgba(255,45,120,0.8)] active:bg-[#ff2d78]/30",
+  secondary:
+    "bg-[#00e5ff]/10 text-[#00e5ff] border-[#00e5ff] shadow-[0_0_8px_rgba(0,229,255,0.4)] hover:bg-[#00e5ff]/20 hover:shadow-[0_0_16px_rgba(0,229,255,0.7)] active:bg-[#00e5ff]/30",
+  ghost:
+    "bg-transparent text-[#00e5ff] border-transparent hover:bg-[#00e5ff]/10 active:bg-[#00e5ff]/20",
+  danger:
+    "bg-[#ff4444]/10 text-[#ff4444] border-[#ff4444] shadow-[0_0_8px_rgba(255,68,68,0.5)] hover:bg-[#ff4444]/20 hover:shadow-[0_0_16px_rgba(255,68,68,0.8)] active:bg-[#ff4444]/30",
+};
+
+const cyberpunkDisabledClasses =
+  "disabled:bg-transparent disabled:text-[#4a4a6a] disabled:border-[#4a4a6a] disabled:shadow-none disabled:hover:bg-transparent disabled:hover:shadow-none";
+
+const cyberpunkBaseClasses =
+  "rounded-sm border font-mono uppercase tracking-widest text-xs transition-all duration-150";
+
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
   className = "",
@@ -89,6 +107,7 @@ export const Button: FC<ButtonProps> = ({
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
+  const isCyberpunk = theme === "cyberpunk";
 
   const themeClasses = isNeu
     ? `${neuBaseClasses} ${neuVariantClasses[variant]} ${neuDisabledClasses}`
@@ -96,7 +115,9 @@ export const Button: FC<ButtonProps> = ({
       ? `${materialBaseClasses} ${materialVariantClasses[variant]} ${materialDisabledClasses}`
       : isCupertino
         ? `${cupertinoBaseClasses} ${cupertinoVariantClasses[variant]} ${cupertinoDisabledClasses}`
-        : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
+        : isCyberpunk
+          ? `${cyberpunkBaseClasses} ${cyberpunkVariantClasses[variant]} ${cyberpunkDisabledClasses}`
+          : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
 
   return (
     <button

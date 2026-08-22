@@ -23,6 +23,7 @@ export const Timer = forwardRef<
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
   const isCupertino = theme === "cupertino";
+  const isCyberpunk = theme === "cyberpunk";
 
   const resume = useCallback(() => {
     intervalRef.current = setInterval(() => {
@@ -66,14 +67,20 @@ export const Timer = forwardRef<
   return (
     <div
       ref={divRef}
-      className={`text-xl font-mono font-semibold text-gray-800 rounded-xl px-4 py-2 ${
+      className={`text-xl font-mono font-semibold rounded-xl px-4 py-2 ${
+        isCyberpunk
+          ? "text-[#00e5ff] bg-[#12121f] border border-[#00e5ff]/30 shadow-[0_0_10px_rgba(0,229,255,0.2)] rounded-sm"
+          : "text-gray-800"
+      } ${
         isNeu
           ? "bg-gray-200 shadow-[6px_6px_12px_rgba(0,0,0,0.15),-6px_-6px_12px_rgba(255,255,255,0.7)]"
           : isMaterial
             ? "bg-white shadow-md"
             : isCupertino
               ? "bg-white border border-[#E5E5EA] shadow-sm"
-              : "bg-white/30 border border-white/40 backdrop-blur-md shadow-md"
+              : isCyberpunk
+                ? ""
+                : "bg-white/30 border border-white/40 backdrop-blur-md shadow-md"
       }`}
     >
       {startTime.toFixed(2)} seconds
