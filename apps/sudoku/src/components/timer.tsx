@@ -1,10 +1,10 @@
 import { useTheme } from "@core/ui";
 import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
+    forwardRef,
+    useCallback,
+    useImperativeHandle,
+    useLayoutEffect,
+    useRef,
 } from "react";
 
 export const Timer = forwardRef<
@@ -21,6 +21,7 @@ export const Timer = forwardRef<
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
+  const isCupertino = theme === "cupertino";
 
   const resume = useCallback(() => {
     intervalRef.current = setInterval(() => {
@@ -63,7 +64,9 @@ export const Timer = forwardRef<
           ? "bg-gray-200 shadow-[6px_6px_12px_rgba(0,0,0,0.15),-6px_-6px_12px_rgba(255,255,255,0.7)]"
           : isMaterial
             ? "bg-white shadow-md"
-            : "bg-white/30 border border-white/40 backdrop-blur-md shadow-md"
+            : isCupertino
+              ? "bg-white border border-[#E5E5EA] shadow-sm"
+              : "bg-white/30 border border-white/40 backdrop-blur-md shadow-md"
       }`}
     >
       {startTime.toFixed(2)} seconds

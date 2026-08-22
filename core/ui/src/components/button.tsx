@@ -61,6 +61,24 @@ const materialDisabledClasses =
 const materialBaseClasses =
   "rounded-md border-0 transition-all duration-150 uppercase text-sm tracking-wide";
 
+// Cupertino (iOS): iOS system colors, rounded rectangles, no borders on filled buttons
+const cupertinoVariantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-[#007AFF] text-white hover:bg-[#0071EB] active:bg-[#0062CC] border-transparent shadow-sm",
+  secondary:
+    "bg-white text-[#007AFF] border border-[#C7C7CC] hover:bg-[#F2F2F7] active:bg-[#E5E5EA] shadow-sm",
+  ghost:
+    "bg-transparent text-[#007AFF] border-transparent hover:bg-[#007AFF]/10 active:bg-[#007AFF]/20",
+  danger:
+    "bg-[#FF3B30] text-white hover:bg-[#E6352B] active:bg-[#CC2F25] border-transparent shadow-sm",
+};
+
+const cupertinoDisabledClasses =
+  "disabled:bg-[#F2F2F7] disabled:text-[#C7C7CC] disabled:shadow-none disabled:border-[#E5E5EA] disabled:hover:bg-[#F2F2F7]";
+
+const cupertinoBaseClasses =
+  "rounded-xl border transition-all duration-150 font-semibold";
+
 export const Button: FC<ButtonProps> = ({
   variant = "primary",
   className = "",
@@ -70,12 +88,15 @@ export const Button: FC<ButtonProps> = ({
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
+  const isCupertino = theme === "cupertino";
 
   const themeClasses = isNeu
     ? `${neuBaseClasses} ${neuVariantClasses[variant]} ${neuDisabledClasses}`
     : isMaterial
       ? `${materialBaseClasses} ${materialVariantClasses[variant]} ${materialDisabledClasses}`
-      : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
+      : isCupertino
+        ? `${cupertinoBaseClasses} ${cupertinoVariantClasses[variant]} ${cupertinoDisabledClasses}`
+        : `${glassBaseClasses} ${glassVariantClasses[variant]} ${glassDisabledClasses}`;
 
   return (
     <button

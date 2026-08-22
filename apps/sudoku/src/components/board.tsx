@@ -69,6 +69,7 @@ export const BoardCell = ({
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
+  const isCupertino = theme === "cupertino";
 
   const bgClass = isNeu
     ? isGiven
@@ -86,13 +87,21 @@ export const BoardCell = ({
           : isHighlighted
             ? "bg-sky-100"
             : "bg-white hover:bg-gray-50"
-      : isGiven
-        ? "bg-white/40"
-        : isSelected
-          ? "bg-blue-300/50"
-          : isHighlighted
-            ? "bg-sky-300/40"
-            : "bg-white/15 hover:bg-white/25";
+      : isCupertino
+        ? isGiven
+          ? "bg-[#F2F2F7]"
+          : isSelected
+            ? "bg-[#007AFF]/15"
+            : isHighlighted
+              ? "bg-[#007AFF]/10"
+              : "bg-white hover:bg-[#F2F2F7]"
+        : isGiven
+          ? "bg-white/40"
+          : isSelected
+            ? "bg-blue-300/50"
+            : isHighlighted
+              ? "bg-sky-300/40"
+              : "bg-white/15 hover:bg-white/25";
 
   const handleCellClick = () => {
     onSelect?.();
@@ -119,7 +128,7 @@ export const BoardCell = ({
   return (
     <div
       className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
-        isNeu || isMaterial ? "" : "backdrop-blur-md"
+        isNeu || isMaterial || isCupertino ? "" : "backdrop-blur-md"
       } ${bgClass}`}
       onContextMenu={handleCellRightClick}
       onClick={handleCellClick}
@@ -165,7 +174,9 @@ export const BoardCell = ({
                 ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.25),-8px_-8px_16px_rgba(255,255,255,0.7)]"
                 : isMaterial
                   ? "bg-white shadow-xl"
-                  : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
+                  : isCupertino
+                    ? "bg-white/95 backdrop-blur-xl border border-[#E5E5EA] shadow-lg"
+                    : "bg-white/40 backdrop-blur-2xl border border-white/50 shadow-xl"
             }`}
           >
             <div className="grid grid-cols-3 gap-1 w-max h-max">
@@ -183,9 +194,13 @@ export const BoardCell = ({
                           ? selected
                             ? "bg-blue-100 text-blue-700"
                             : "bg-gray-50 hover:bg-gray-100"
-                          : selected
-                            ? "border border-white/40 bg-blue-300/50"
-                            : "border border-white/40 bg-white/20 hover:bg-white/40"
+                          : isCupertino
+                            ? selected
+                              ? "bg-[#007AFF] text-white"
+                              : "bg-[#F2F2F7] hover:bg-[#E5E5EA]"
+                            : selected
+                              ? "border border-white/40 bg-blue-300/50"
+                              : "border border-white/40 bg-white/20 hover:bg-white/40"
                     }`}
                     onClick={() => {
                       const newMemo = memo?.includes(num.toString())

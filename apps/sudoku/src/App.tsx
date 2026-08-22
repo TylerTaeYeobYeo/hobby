@@ -5,6 +5,7 @@ export const App = () => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
+  const isCupertino = theme === "cupertino";
 
   return (
     <main
@@ -13,10 +14,12 @@ export const App = () => {
           ? "bg-gray-200"
           : isMaterial
             ? "bg-gray-50"
-            : "bg-linear-to-br from-indigo-300 via-sky-200 to-pink-300"
+            : isCupertino
+              ? "bg-[#F2F2F7]"
+              : "bg-linear-to-br from-indigo-300 via-sky-200 to-pink-300"
       }`}
     >
-      {!isNeu && !isMaterial && (
+      {!isNeu && !isMaterial && !isCupertino && (
         <>
           <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-purple-400/40 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-sky-400/40 blur-3xl pointer-events-none" />
@@ -29,7 +32,9 @@ export const App = () => {
               ? "flex flex-col items-center gap-4 rounded-3xl bg-gray-200 p-8 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
               : isMaterial
                 ? "flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-xl"
-                : "flex flex-col items-center gap-4 rounded-3xl border border-white/40 bg-white/25 p-8 shadow-2xl backdrop-blur-2xl"
+                : isCupertino
+                  ? "flex flex-col items-center gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#E5E5EA]"
+                  : "flex flex-col items-center gap-4 rounded-3xl border border-white/40 bg-white/25 p-8 shadow-2xl backdrop-blur-2xl"
           }
         >
           <h1 className="text-4xl font-bold text-gray-800 drop-shadow-sm">

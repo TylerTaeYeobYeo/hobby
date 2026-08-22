@@ -98,6 +98,18 @@
 ## Restart Feature
 
 - [x] Remove the "Erase" button from the game toolbar
+
+## Cupertino Theme
+
+- [x] Add `cupertino` to `UiTheme` union type and `VALID_THEMES` in `core/ui/src/theme/theme-context.tsx`
+- [x] Add Cupertino-style button variants to `core/ui/src/components/button.tsx` (iOS system blue `#007AFF`, rounded rectangle, no border on primary)
+- [x] Add Cupertino segmented control style to `core/ui/src/components/tabs.tsx` (gray pill track, white selected tab with shadow)
+- [x] Add Cupertino alert/sheet style to `core/ui/src/components/dialog.tsx` (white panel, `bg-black/40` backdrop, `rounded-2xl`)
+- [x] Update `App.tsx` to handle Cupertino background (`#F2F2F7`) and white card surface
+- [x] Add `cupertino` option to theme selector in `apps/sudoku/src/pages/menu.tsx`
+- [x] Add Cupertino styles to `NumberHintBar` (white container, iOS blue active state)
+- [x] Add Cupertino styles to `BoardCell` (white normal, `#007AFF/15` selected, `#007AFF/10` highlighted, `#F2F2F7` given)
+- [x] Add Cupertino styles to `Timer` (white panel, light border)
 - [x] Add a "Restart" button in its place
 - [x] Clicking "Restart" opens a confirmation `Dialog` (uses core/ui `Dialog` + `Button`)
 - [x] On confirm: reset `board` back to the original given values (clear all user-entered values), clear all memos, keep `given` mask unchanged, reset timer to 0 and keep it running (or paused state as appropriate), reset hint/undo history state as appropriate
