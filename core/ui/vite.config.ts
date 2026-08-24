@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: "src/index.tsx",
+      entry: "src/index.ts",
       name: "ui",
       fileName: "index",
       // fileName: (format) => `ui.${format}.js`,
