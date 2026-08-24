@@ -1,5 +1,5 @@
 {
-  "name": "@app/sudoku",
+  "name": "@app/minesweeper",
   "private": true,
   "version": "0.0.0",
   "type": "module",
