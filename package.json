@@ -6,15 +6,20 @@
   "author": "",
   "type": "commonjs",
   "main": "index.js",
+  "packageManager": "npm@11.6.2",
   "workspaces": [
     "apps/*",
     "core/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:sudoku": "cd apps/sudoku && npm run dev",
-    "build:sudoku": "cd apps/sudoku && npm run build",
-    "setup": "npm install && npm run setup:core:ui",
-    "setup:core:ui": "cd core/ui && npm run build"
+    "dev:sudoku": "turbo run dev --filter=@app/sudoku",
+    "build": "turbo run build",
+    "build:sudoku": "turbo run build --filter=@app/sudoku",
+    "lint": "turbo run lint",
+    "setup": "npm install && npm run build"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.11"
   }
 }
