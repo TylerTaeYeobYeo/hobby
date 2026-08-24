@@ -53,3 +53,11 @@ new `core/utility` package first, so both apps can share it.
 - [x] `npm install` to link workspace dependencies
 - [x] `turbo run build` succeeds for all packages
 - [x] `turbo run lint` succeeds for all packages
+
+## 6. Grid generator
+
+- [x] `src/util/minesweeper-generator.ts`: `Level` type (`easy`/`medium`/`hard`)
+      with configs — easy 9×9/10 mines, medium 16×16/40 mines, hard 30×16/99 mines
+- [x] `generateMinesweeperGrid(difficulty, firstClick)` returns a 2D grid of
+      cells (`isMine`, `adjacentMines`), guaranteeing no mine at `firstClick`
+- [x] Verify `apps/minesweeper` type-checks and lints cleanly
