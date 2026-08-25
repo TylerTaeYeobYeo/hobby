@@ -44,11 +44,13 @@ export const BoardCell = ({
   const bgClass = isInvalid
     ? isNeu
       ? "bg-red-100 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]"
-      : isCupertino
-        ? "bg-red-50"
-        : isCyberpunk
-          ? "bg-[#ff4444]/10"
-          : "bg-red-100"
+      : isMaterial
+        ? "bg-red-100"
+        : isCupertino
+          ? "bg-red-50"
+          : isCyberpunk
+            ? "bg-[#ff4444]/10"
+            : "bg-red-100 border border-red-900/25"
     : isNeu
       ? isGiven
         ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
@@ -82,12 +84,12 @@ export const BoardCell = ({
                   ? "bg-[#00e5ff]/8"
                   : "bg-[#12121f] hover:bg-[#1a1a2e]"
             : isGiven
-              ? "bg-white/40"
+              ? "bg-white/50 border border-black/20"
               : isSelected
-                ? "bg-blue-300/50"
+                ? "bg-blue-300/60 border border-blue-900/30"
                 : isHighlighted
-                  ? "bg-sky-300/40"
-                  : "bg-white/15 hover:bg-white/25";
+                  ? "bg-sky-300/50 border border-sky-900/25"
+                  : "bg-white/25 border border-black/15 hover:bg-white/40 hover:border-black/25";
 
   const handleClick = () => {
     onSelect?.();
@@ -105,7 +107,13 @@ export const BoardCell = ({
       return;
     }
     const rect = cellRef.current?.getBoundingClientRect();
-    if (rect) setMemoPopupRect({ top: rect.top, bottom: rect.bottom, left: rect.left, width: rect.width });
+    if (rect)
+      setMemoPopupRect({
+        top: rect.top,
+        bottom: rect.bottom,
+        left: rect.left,
+        width: rect.width,
+      });
   };
 
   const memoButtonClass = (selected: boolean) => {
@@ -113,13 +121,21 @@ export const BoardCell = ({
       return selected
         ? "bg-gray-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]"
         : "bg-gray-200 shadow-[2px_2px_4px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:brightness-105";
-    if (isMaterial) return selected ? "bg-blue-100 text-blue-700" : "bg-gray-50 hover:bg-gray-100";
-    if (isCupertino) return selected ? "bg-[#007AFF] text-white" : "bg-[#F2F2F7] hover:bg-[#E5E5EA]";
+    if (isMaterial)
+      return selected
+        ? "bg-blue-100 text-blue-700"
+        : "bg-gray-50 hover:bg-gray-100";
+    if (isCupertino)
+      return selected
+        ? "bg-[#007AFF] text-white"
+        : "bg-[#F2F2F7] hover:bg-[#E5E5EA]";
     if (isCyberpunk)
       return selected
         ? "bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.4)]"
         : "bg-[#12121f] text-[#4a6a8a] border border-[#4a4a6a]/30 hover:border-[#00e5ff]/50 hover:text-[#00e5ff]";
-    return selected ? "border border-white/40 bg-blue-300/50" : "border border-white/40 bg-white/20 hover:bg-white/40";
+    return selected
+      ? "border border-white/40 bg-blue-300/50"
+      : "border border-white/40 bg-white/20 hover:bg-white/40";
   };
 
   const popupClass = isNeu
@@ -136,20 +152,28 @@ export const BoardCell = ({
     <div
       ref={cellRef}
       className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
-        isNeu || isMaterial || isCupertino || isCyberpunk ? "" : "backdrop-blur-md"
+        isNeu || isMaterial || isCupertino || isCyberpunk
+          ? ""
+          : "backdrop-blur-md"
       } ${bgClass}`}
       onContextMenu={handleRightClick}
       onClick={handleClick}
     >
       {isGiven ? (
-        <span className={`font-bold select-none ${isCyberpunk ? "text-[#00e5ff] font-mono" : "text-gray-800"}`}>
+        <span
+          className={`font-bold select-none ${isCyberpunk ? "text-[#00e5ff] font-mono" : "text-gray-800"}`}
+        >
           {value}
         </span>
       ) : (
         <input
           style={{ width: "100%", height: "100%", textAlign: "center" }}
           className={`bg-transparent relative z-10 font-semibold outline-none ${
-            isInvalid ? "text-red-500" : isCyberpunk ? "text-[#e0e0ff] font-mono" : "text-gray-900"
+            isInvalid
+              ? "text-red-500"
+              : isCyberpunk
+                ? "text-[#e0e0ff] font-mono"
+                : "text-gray-900"
           }`}
           type="text"
           value={value === 0 ? "" : value}
@@ -162,7 +186,9 @@ export const BoardCell = ({
       )}
 
       {value === 0 && memo && memo.length > 0 && (
-        <div className={`grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none absolute inset-0 ${isCyberpunk ? "text-[#4a6a8a]" : "text-gray-600"}`}>
+        <div
+          className={`grid grid-cols-3 grid-rows-3 w-full h-full pointer-events-none text-[0.55rem] leading-none absolute inset-0 ${isCyberpunk ? "text-[#4a6a8a]" : "text-gray-600"}`}
+        >
           {MEMO_NUMS.map((num) => (
             <div key={num} className="flex items-center justify-center">
               {memo.includes(num.toString()) ? num : ""}
@@ -182,7 +208,10 @@ export const BoardCell = ({
                 : memoPopupRect.top - POPUP_HEIGHT - 6;
             return (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setMemoPopupRect(null)} />
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setMemoPopupRect(null)}
+                />
                 <dialog
                   open
                   className={`fixed p-2 z-50 w-fit h-fit rounded-xl ${popupClass}`}

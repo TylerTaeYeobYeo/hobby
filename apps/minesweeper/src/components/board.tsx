@@ -12,6 +12,7 @@ export type BoardProps = {
   explodedCell?: { row: number; col: number } | null;
   onReveal: (row: number, col: number) => void;
   onToggleFlag: (row: number, col: number) => void;
+  onChord: (row: number, col: number) => void;
 };
 
 const CELL_SIZE = 28; // px, matches w-7/h-7
@@ -26,6 +27,7 @@ export const Board = ({
   explodedCell,
   onReveal,
   onToggleFlag,
+  onChord,
 }: BoardProps) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
@@ -61,6 +63,7 @@ export const Board = ({
             disabled={disabled}
             onReveal={() => onReveal(row, col)}
             onToggleFlag={() => onToggleFlag(row, col)}
+            onChord={() => onChord(row, col)}
           />
         )),
       )}

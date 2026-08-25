@@ -10,6 +10,7 @@ export type BoardCellProps = {
   disabled?: boolean;
   onReveal: () => void;
   onToggleFlag: () => void;
+  onChord: () => void;
 };
 
 const NUMBER_COLORS: Record<number, string> = {
@@ -32,6 +33,7 @@ export const BoardCell = ({
   disabled,
   onReveal,
   onToggleFlag,
+  onChord,
 }: BoardCellProps) => {
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
@@ -50,6 +52,13 @@ export const BoardCell = ({
     onReveal();
   };
 
+  // Chording: holding both mouse buttons on a revealed number reveals its
+  // unflagged neighbors once enough adjacent mines are flagged.
+  const handleMouseDown = (e: MouseEvent) => {
+    if (disabled || !isRevealed || adjacentMines === 0) return;
+    if (e.buttons === 3) onChord();
+  };
+
   const bgClass = isExploded
     ? "bg-red-500"
     : isRevealed
@@ -61,7 +70,7 @@ export const BoardCell = ({
             ? "bg-[#F2F2F7]"
             : isCyberpunk
               ? "bg-[#1a1a2e]"
-              : "bg-white/25"
+              : "bg-white/35 border border-black/15"
       : isNeu
         ? "bg-gray-200 shadow-[3px_3px_6px_rgba(0,0,0,0.2),-3px_-3px_6px_rgba(255,255,255,0.7)] hover:brightness-105"
         : isMaterial
@@ -70,7 +79,7 @@ export const BoardCell = ({
             ? "bg-white border border-[#E5E5EA] hover:bg-[#F2F2F7]"
             : isCyberpunk
               ? "bg-[#12121f] border border-[#00e5ff]/20 hover:border-[#00e5ff]/50"
-              : "bg-white/40 border border-white/50 hover:bg-white/55";
+              : "bg-white/50 border border-black/25 hover:bg-white/65 hover:border-black/35";
 
   return (
     <div
@@ -79,6 +88,7 @@ export const BoardCell = ({
       } ${bgClass}`}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
+      onMouseDown={handleMouseDown}
     >
       {isRevealed ? (
         isMine ? (

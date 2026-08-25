@@ -3,6 +3,7 @@ import { Board } from "../components/board";
 import { GameToolbar } from "../components/game-toolbar";
 import type { TimerHandle } from "../components/timer";
 import { useGameState } from "../hooks/use-game-state";
+import { formatTime } from "../util/highscore";
 
 export const Game = () => {
   const timerRef = useRef<TimerHandle | null>(null);
@@ -16,8 +17,11 @@ export const Game = () => {
     status,
     explodedCell,
     remainingMines,
+    finalTime,
+    rank,
     startTime,
     handleReveal,
+    handleChord,
     handleToggleFlag,
     handleReset,
     handleSave,
@@ -49,11 +53,13 @@ export const Game = () => {
         explodedCell={explodedCell}
         onReveal={handleReveal}
         onToggleFlag={handleToggleFlag}
+        onChord={handleChord}
       />
 
       {status === "won" && (
         <p className="font-semibold text-green-700">
-          🎉 You cleared the field!
+          🎉 You cleared the field in {formatTime(finalTime ?? 0)}
+          {rank !== null ? ` — ranked #${rank}!` : "!"}
         </p>
       )}
       {status === "lost" && (

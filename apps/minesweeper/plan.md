@@ -92,3 +92,23 @@ new `core/utility` package first, so both apps can share it.
       click, flagging updates the mine counter, Reset clears the board/timer, and
       Save + Load Game round-trips the obfuscated state correctly
 - [x] `turbo run lint build --filter=@app/minesweeper` passes cleanly
+
+## 8. High scores & chording
+
+- [x] `src/util/highscore.ts` — thin wrapper around `createHighScoreStore` from
+      `@core/utility` (storage key `minesweeperHighScores`, per-difficulty
+      easy/medium/hard leaderboards, ranked ascending by time)
+- [x] `src/pages/leaderboard.tsx` — mirrors sudoku's leaderboard: difficulty
+      `Tabs` + ranked list (rank, formatted time, date) sourced from `getHighScores()`
+- [x] `use-game-state`'s `finishWin` calls `addHighScore(difficulty, elapsedTime)`
+      on a win and stores `finalTime`/`rank`, surfaced on the game page's win message
+- [x] Chording: `BoardCell` fires `onChord` on `mousedown` when both mouse buttons
+      are held (`e.buttons === 3`) over a revealed numbered cell; `useGameState`'s
+      `handleChord` reveals the cell's remaining unflagged neighbors once the
+      flagged-neighbor count matches its `adjacentMines` (losing if one is an
+      unflagged mine, winning if it completes the board)
+- [x] Verified in-browser: seeded `minesweeperHighScores` renders correctly on the
+      leaderboard; with `Math.random` pinned for deterministic mine placement,
+      flagging a revealed cell's known mine-neighbors and chord-clicking it
+      correctly revealed the remaining neighbor
+- [x] `turbo run lint build --filter=@app/minesweeper` passes cleanly

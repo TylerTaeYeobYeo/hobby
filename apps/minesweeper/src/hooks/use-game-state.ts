@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { decodeGameState, encodeGameState } from "../util/game-storage";
+import { addHighScore } from "../util/highscore";
 import {
   LEVEL_CONFIG,
   generateMinesweeperGrid,
@@ -70,6 +71,24 @@ const isBoardCleared = (
 ): boolean =>
   grid.every((row, r) => row.every((cell, c) => cell.isMine || revealed[r][c]));
 
+const neighborsOf = (
+  row: number,
+  col: number,
+  rows: number,
+  cols: number,
+): [number, number][] => {
+  const neighbors: [number, number][] = [];
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const r = row + dr;
+      const c = col + dc;
+      if (r >= 0 && r < rows && c >= 0 && c < cols) neighbors.push([r, c]);
+    }
+  }
+  return neighbors;
+};
+
 export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -86,6 +105,8 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     row: number;
     col: number;
   } | null>(null);
+  const [finalTime, setFinalTime] = useState<number | null>(null);
+  const [rank, setRank] = useState<number | null>(null);
 
   const startTimeRef = useRef(0);
   const isNew = searchParams.get("isNew") ?? "true";
@@ -108,6 +129,8 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       setFlagged(emptyMatrix(r, c));
       setStatus("idle");
       setExplodedCell(null);
+      setFinalTime(null);
+      setRank(null);
       startTimeRef.current = 0;
     };
 
@@ -142,6 +165,31 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
+  const finishWin = (finalRevealed: boolean[][]) => {
+    setRevealed(finalRevealed);
+    timerRef.current?.pause();
+    const elapsedTime = timerRef.current?.getTime() ?? 0;
+    const { rank: earnedRank } = addHighScore(difficulty, elapsedTime);
+    setFinalTime(elapsedTime);
+    setRank(earnedRank);
+    setStatus("won");
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const revealMineAndLose = (row: number, col: number, base: boolean[][]) => {
+    const newRevealed = cloneMatrix(base);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (grid?.[r][c].isMine) newRevealed[r][c] = true;
+      }
+    }
+    setRevealed(newRevealed);
+    setExplodedCell({ row, col });
+    setStatus("lost");
+    timerRef.current?.pause();
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
   const handleReveal = (row: number, col: number) => {
     if (status === "won" || status === "lost") return;
     if (flagged[row]?.[col] || revealed[row]?.[col]) return;
@@ -151,36 +199,62 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       const newRevealed = emptyMatrix(rows, cols);
       floodFillReveal(newGrid, newRevealed, flagged, row, col);
       setGrid(newGrid);
-      setRevealed(newRevealed);
-      setStatus(isBoardCleared(newGrid, newRevealed) ? "won" : "playing");
       timerRef.current?.resume();
+      if (isBoardCleared(newGrid, newRevealed)) {
+        finishWin(newRevealed);
+      } else {
+        setRevealed(newRevealed);
+        setStatus("playing");
+      }
       return;
     }
 
     if (!grid) return;
 
     if (grid[row][col].isMine) {
-      const newRevealed = cloneMatrix(revealed);
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          if (grid[r][c].isMine) newRevealed[r][c] = true;
-        }
-      }
-      setRevealed(newRevealed);
-      setExplodedCell({ row, col });
-      setStatus("lost");
-      timerRef.current?.pause();
-      localStorage.removeItem(STORAGE_KEY);
+      revealMineAndLose(row, col, revealed);
       return;
     }
 
     const newRevealed = cloneMatrix(revealed);
     floodFillReveal(grid, newRevealed, flagged, row, col);
-    setRevealed(newRevealed);
     if (isBoardCleared(grid, newRevealed)) {
-      setStatus("won");
-      timerRef.current?.pause();
-      localStorage.removeItem(STORAGE_KEY);
+      finishWin(newRevealed);
+    } else {
+      setRevealed(newRevealed);
+    }
+  };
+
+  // Chording: when a revealed number's adjacent mines are all flagged,
+  // reveal its remaining unflagged neighbors at once.
+  const handleChord = (row: number, col: number) => {
+    if (status !== "playing" || !grid) return;
+    if (!revealed[row]?.[col]) return;
+
+    const cell = grid[row][col];
+    if (cell.isMine || cell.adjacentMines === 0) return;
+
+    const neighbors = neighborsOf(row, col, rows, cols);
+    const flaggedCount = neighbors.filter(([r, c]) => flagged[r][c]).length;
+    if (flaggedCount !== cell.adjacentMines) return;
+
+    const toReveal = neighbors.filter(
+      ([r, c]) => !flagged[r][c] && !revealed[r][c],
+    );
+    const hitMine = toReveal.find(([r, c]) => grid[r][c].isMine);
+    if (hitMine) {
+      revealMineAndLose(hitMine[0], hitMine[1], revealed);
+      return;
+    }
+
+    const newRevealed = cloneMatrix(revealed);
+    for (const [r, c] of toReveal) {
+      floodFillReveal(grid, newRevealed, flagged, r, c);
+    }
+    if (isBoardCleared(grid, newRevealed)) {
+      finishWin(newRevealed);
+    } else {
+      setRevealed(newRevealed);
     }
   };
 
@@ -200,6 +274,8 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     setFlagged(emptyMatrix(rows, cols));
     setStatus("idle");
     setExplodedCell(null);
+    setFinalTime(null);
+    setRank(null);
     localStorage.removeItem(STORAGE_KEY);
     timerRef.current?.reset();
   };
@@ -229,8 +305,11 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     explodedCell,
     difficulty,
     remainingMines,
+    finalTime,
+    rank,
     startTime: startTimeRef.current,
     handleReveal,
+    handleChord,
     handleToggleFlag,
     handleReset,
     handleSave,
