@@ -1,4 +1,4 @@
-import { Center, useTheme } from "@core/ui";
+import { Center, ThemeToggle, useTheme } from "@core/ui";
 import { Outlet } from "react-router";
 
 export const App = () => {
@@ -34,6 +34,9 @@ export const App = () => {
           <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#00e5ff]/10 blur-3xl pointer-events-none" />
         </>
       )}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <Center className="flex flex-col gap-4">
         <div
           className={
