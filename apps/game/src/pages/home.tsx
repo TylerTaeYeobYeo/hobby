@@ -38,7 +38,7 @@ const GameCard = ({ game }: { game: Game }) => {
 
   return (
     <button
-      onClick={() => navigate(`/game/${game.id}`)}
+      onClick={() => navigate(`/${game.id}`)}
       className={`w-full overflow-hidden transition-all duration-200 cursor-pointer text-left ${cardClasses[theme]}`}
     >
       <img
@@ -56,12 +56,31 @@ const GameCard = ({ game }: { game: Game }) => {
   );
 };
 
+const bgClasses: Record<UiTheme, string> = {
+  glass: "bg-linear-to-br from-indigo-300 via-sky-200 to-pink-300",
+  neumorphism: "bg-gray-200",
+  material: "bg-gray-50",
+  cupertino: "bg-[#F2F2F7]",
+  cyberpunk: "bg-[#0d0d1a]",
+};
+
 export const Home = () => {
   const { theme } = useTheme();
 
   return (
-    <div className="relative min-h-screen">
-      {/* ThemeToggle pinned to top-right */}
+    <main className={`relative min-h-screen w-screen overflow-x-hidden ${bgClasses[theme]}`}>
+      {theme === "glass" && (
+        <>
+          <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-purple-400/40 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-sky-400/40 blur-3xl pointer-events-none" />
+        </>
+      )}
+      {theme === "cyberpunk" && (
+        <>
+          <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#ff2d78]/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#00e5ff]/10 blur-3xl pointer-events-none" />
+        </>
+      )}
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
@@ -76,6 +95,6 @@ export const Home = () => {
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
