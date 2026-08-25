@@ -15,9 +15,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:sudoku": "turbo run dev --filter=@app/sudoku",
     "dev:minesweeper": "turbo run dev --filter=@app/minesweeper",
+    "dev:game": "turbo run dev --filter=@app/game",
+    "dev:all": "turbo run dev",
     "build": "turbo run build",
     "build:sudoku": "turbo run build --filter=@app/sudoku",
     "build:minesweeper": "turbo run build --filter=@app/minesweeper",
+    "build:game": "turbo run build --filter=@app/game",
     "lint": "turbo run lint",
     "setup": "npm install && npm run build",
     "build:core": "turbo run build --filter=@core/*"

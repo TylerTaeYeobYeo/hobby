@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <rect width="400" height="280" fill="#f1f5f9"/>
+
+  <!-- 9x9 grid · 26px cells · startX=83 startY=23 -->
+
+  <!-- Thin horizontal lines (non-box-border rows) -->
+  <line x1="83" y1="49"  x2="317" y2="49"  stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="83" y1="75"  x2="317" y2="75"  stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="83" y1="127" x2="317" y2="127" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="83" y1="153" x2="317" y2="153" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="83" y1="205" x2="317" y2="205" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="83" y1="231" x2="317" y2="231" stroke="#cbd5e1" stroke-width="0.8"/>
+
+  <!-- Thin vertical lines -->
+  <line x1="109" y1="23" x2="109" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="135" y1="23" x2="135" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="187" y1="23" x2="187" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="213" y1="23" x2="213" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="265" y1="23" x2="265" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+  <line x1="291" y1="23" x2="291" y2="257" stroke="#cbd5e1" stroke-width="0.8"/>
+
+  <!-- Thick box-border horizontals -->
+  <line x1="83" y1="23"  x2="317" y2="23"  stroke="#475569" stroke-width="2"/>
+  <line x1="83" y1="101" x2="317" y2="101" stroke="#475569" stroke-width="2"/>
+  <line x1="83" y1="179" x2="317" y2="179" stroke="#475569" stroke-width="2"/>
+  <line x1="83" y1="257" x2="317" y2="257" stroke="#475569" stroke-width="2"/>
+
+  <!-- Thick box-border verticals -->
+  <line x1="83"  y1="23" x2="83"  y2="257" stroke="#475569" stroke-width="2"/>
+  <line x1="161" y1="23" x2="161" y2="257" stroke="#475569" stroke-width="2"/>
+  <line x1="239" y1="23" x2="239" y2="257" stroke="#475569" stroke-width="2"/>
+  <line x1="317" y1="23" x2="317" y2="257" stroke="#475569" stroke-width="2"/>
+
+  <!-- Numbers · col x-centers: 96 122 148 174 200 226 252 278 304 -->
+  <!--          · row y-centers: 36  62  88 114 140 166 192 218 244 -->
+
+  <!-- Row 0: 5,3,_,_,7,_,_,_,_ -->
+  <text x="96"  y="36"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">5</text>
+  <text x="122" y="36"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">3</text>
+  <text x="200" y="36"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">7</text>
+
+  <!-- Row 1: 6,_,_,1,9,5,_,_,_ -->
+  <text x="96"  y="62"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">6</text>
+  <text x="174" y="62"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">1</text>
+  <text x="200" y="62"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">9</text>
+  <text x="226" y="62"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">5</text>
+
+  <!-- Row 2: _,9,8,_,_,_,_,6,_ -->
+  <text x="122" y="88"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">9</text>
+  <text x="148" y="88"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">8</text>
+  <text x="278" y="88"  text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">6</text>
+
+  <!-- Row 3: 8,_,_,_,6,_,_,_,3 -->
+  <text x="96"  y="114" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">8</text>
+  <text x="200" y="114" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">6</text>
+  <text x="304" y="114" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">3</text>
+
+  <!-- Row 4: 4,_,_,8,_,3,_,_,1 -->
+  <text x="96"  y="140" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">4</text>
+  <text x="174" y="140" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">8</text>
+  <text x="226" y="140" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">3</text>
+  <text x="304" y="140" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">1</text>
+
+  <!-- Row 5: 7,_,_,_,2,_,_,_,6 -->
+  <text x="96"  y="166" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">7</text>
+  <text x="200" y="166" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">2</text>
+  <text x="304" y="166" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">6</text>
+
+  <!-- Row 6: _,6,_,_,_,_,2,8,_ -->
+  <text x="122" y="192" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">6</text>
+  <text x="252" y="192" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">2</text>
+  <text x="278" y="192" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">8</text>
+
+  <!-- Row 7: _,_,_,4,1,9,_,_,5 -->
+  <text x="174" y="218" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">4</text>
+  <text x="200" y="218" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">1</text>
+  <text x="226" y="218" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">9</text>
+  <text x="304" y="218" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">5</text>
+
+  <!-- Row 8: _,_,_,_,8,_,_,7,9 -->
+  <text x="200" y="244" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">8</text>
+  <text x="278" y="244" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">7</text>
+  <text x="304" y="244" text-anchor="middle" dominant-baseline="central" font-family="serif" font-size="15" font-weight="bold" fill="#1e293b">9</text>
+</svg>
