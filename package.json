@@ -19,7 +19,8 @@
     "build:sudoku": "turbo run build --filter=@app/sudoku",
     "build:minesweeper": "turbo run build --filter=@app/minesweeper",
     "lint": "turbo run lint",
-    "setup": "npm install && npm run build"
+    "setup": "npm install && npm run build",
+    "build:core": "turbo run build --filter=@core/*"
   },
   "devDependencies": {
     "turbo": "^2.10.11"
