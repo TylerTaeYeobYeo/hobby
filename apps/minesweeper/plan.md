@@ -61,3 +61,34 @@ new `core/utility` package first, so both apps can share it.
 - [x] `generateMinesweeperGrid(difficulty, firstClick)` returns a 2D grid of
       cells (`isMine`, `adjacentMines`), guaranteeing no mine at `firstClick`
 - [x] Verify `apps/minesweeper` type-checks and lints cleanly
+
+## 7. Gameplay UI (game page + menu wiring)
+
+- [x] `src/util/game-storage.ts` — `encodeGameState`/`decodeGameState` obfuscate
+      saved game JSON with an XOR + base64 cipher so `localStorage` doesn't
+      expose mine locations at a glance (not cryptographic security, just
+      anti-hint obfuscation of the player's own data)
+- [x] `src/components/timer.tsx` — stopwatch `Timer` (`getTime`/`pause`/`resume`/`reset`
+      via ref) that does **not** auto-start on mount; stays at 0 until explicitly resumed
+- [x] `src/components/mine-counter.tsx` — `MineCounter` showing `mines - flaggedCount`
+- [x] `src/components/board-cell.tsx` — single cell: left-click reveals, right-click
+      toggles flag, shows number/mine/flag with theme-aware styling
+- [x] `src/components/board.tsx` — CSS-grid board rendering `rows x cols` cells from
+      `MinesweeperGrid | null` (null until first click) + `revealed`/`flagged` matrices
+- [x] `src/components/difficulty-dialog.tsx` — `DifficultyDialog` (Easy/Medium/Hard),
+      mirrors sudoku's dialog
+- [x] `src/components/game-toolbar.tsx` — `GameToolbar` with Back button, `Timer`,
+      `MineCounter`, Reset button, Save button
+- [x] `src/hooks/use-game-state.ts` — `useGameState` hook: - grid stays `null` (status `idle`) until the first reveal, which generates
+      the grid via `generateMinesweeperGrid` and starts the timer - flood-fills zero-adjacent-mine cells on reveal - clicking a mine reveals all mines and sets status `lost`; revealing every
+      non-mine cell sets status `won` (both pause the timer and clear the save) - Reset regenerates (grid → `null`, matrices cleared, timer reset to 0) - Save writes `{ difficulty, grid, revealed, flagged, elapsedTime }` to
+      `localStorage` via `encodeGameState` - `isNew=false` (Load Game) reads and decodes the saved state and resumes
+      the timer if the loaded status is `playing`
+- [x] `src/pages/menu.tsx` — "New Game" opens `DifficultyDialog`; selecting a level
+      navigates to `/game?isNew=true&difficulty=<level>`
+- [x] `src/pages/game.tsx` — renders `GameToolbar` then `Board` below it, plus a
+      simple won/lost status line
+- [x] Verified in-browser: difficulty popup → board render, timer starts on first
+      click, flagging updates the mine counter, Reset clears the board/timer, and
+      Save + Load Game round-trips the obfuscated state correctly
+- [x] `turbo run lint build --filter=@app/minesweeper` passes cleanly
