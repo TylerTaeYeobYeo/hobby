@@ -47,3 +47,15 @@ the theme via `localStorage` (`uiTheme` key).
 - [x] Create `src/pages/game-frame.tsx` (full-screen iframe + fixed back button)
 - [x] Add `dev:all`, `dev:game`, `build:game` to root `package.json`
 - [x] Run `npm install` to register the new workspace package
+
+## Monorepo simplification
+
+- [x] **1. Hoist shared tooling devDependencies to root** — move `vite`, `typescript`,
+  all `eslint-*`, `@babel/core`, `@rolldown/plugin-babel`, `@vitejs/plugin-react`,
+  `babel-plugin-react-compiler`, `globals`, `@types/node`, `@types/babel__core` to the
+  root `package.json`. Each app keeps only app-specific deps and React types.
+- [x] **2. Shared Vite config factory** — create `vite.config.base.mts` at repo root
+  exporting `createViteConfig({ port })`. Each app's `vite.config.ts` becomes 2 lines.
+- [x] **3. Reduce tsconfigs per app from 3 → 2** — extract a root
+  `tsconfig.node.base.json` shared by all apps so `tsconfig.node.json` per app only
+  specifies `include`.
