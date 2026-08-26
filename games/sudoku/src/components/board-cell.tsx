@@ -18,7 +18,6 @@ export type BoardCellProps = {
 
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-console.log(isMobile);
 export const BoardCell = ({
   value,
   memo,
@@ -181,7 +180,8 @@ export const BoardCell = ({
           type="text"
           value={value === 0 ? "" : value}
           // @ts-expect-error - inert is not yet in the React type definitions
-          inert={isMobile ? "true" : undefined}
+          keyboardType={isMobile ? "numeric" : undefined}
+          readOnly={isMobile}
           onChange={(e) => {
             const v = parseInt(e.target.value, 10);
             if (!isNaN(v) && v >= 1 && v <= 9) onChange?.(v, memo);
@@ -215,7 +215,10 @@ export const BoardCell = ({
             const centerX = memoPopupRect.left + memoPopupRect.width / 2;
             const left = Math.max(
               8,
-              Math.min(window.innerWidth - POPUP_WIDTH - 8, centerX - POPUP_WIDTH / 2),
+              Math.min(
+                window.innerWidth - POPUP_WIDTH - 8,
+                centerX - POPUP_WIDTH / 2,
+              ),
             );
             return (
               <>
