@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Board } from "../components/board";
 import { GameToolbar } from "../components/game-toolbar";
 import type { TimerHandle } from "../components/timer";
@@ -7,6 +7,7 @@ import { formatTime } from "../util/highscore";
 
 export const Game = () => {
   const timerRef = useRef<TimerHandle | null>(null);
+  const [flagMode, setFlagMode] = useState(false);
   const {
     isLoading,
     rows,
@@ -33,11 +34,13 @@ export const Game = () => {
   const boardDisabled = status === "won" || status === "lost";
 
   return (
-    <div className="flex flex-col items-center gap-4 min-w-3xl">
+    <div className="flex flex-col items-center gap-4 w-full">
       <GameToolbar
         timerRef={timerRef}
         startTime={startTime}
         remainingMines={remainingMines}
+        flagMode={flagMode}
+        onToggleFlagMode={() => setFlagMode((m) => !m)}
         onBack={handleBack}
         onReset={handleReset}
         onSave={handleSave}
@@ -50,6 +53,7 @@ export const Game = () => {
         revealed={revealed}
         flagged={flagged}
         disabled={boardDisabled}
+        flagMode={flagMode}
         explodedCell={explodedCell}
         onReveal={handleReveal}
         onToggleFlag={handleToggleFlag}

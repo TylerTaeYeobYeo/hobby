@@ -34,7 +34,7 @@ export const NumberHintBar = ({
 
   return (
     <div
-      className={`flex justify-center gap-2 mt-4 rounded-2xl p-2 ${
+      className={`flex gap-1 mt-4 rounded-2xl p-2 ${
         isNeu
           ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.7)]"
           : isMaterial
@@ -77,7 +77,7 @@ export const NumberHintBar = ({
         return (
           <button
             key={num}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
+            className={`flex-1 min-w-0 h-11 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
               isNeu
                 ? neuClasses
                 : isMaterial

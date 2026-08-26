@@ -44,16 +44,20 @@ export const GameToolbar = ({
   onRedo,
   onSave,
 }: GameToolbarProps) => (
-  <div className="flex justify-evenly items-center">
-    <Timer ref={timerRef} startTime={startTime} />
-    <div className="flex gap-2 items-center">
+  <div className="flex flex-col gap-2 w-full">
+    <div className="flex items-center justify-between gap-2">
       <Button variant="secondary" onClick={onBack}>← Back</Button>
-      <Button variant="secondary" onClick={onTogglePause}>
-        {status === "playing" ? "Pause" : "Resume"}
-      </Button>
-      <Button variant="danger" onClick={onRestartClick} disabled={status !== "playing"}>
-        Restart
-      </Button>
+      <Timer ref={timerRef} startTime={startTime} />
+      <div className="flex gap-2">
+        <Button variant="secondary" onClick={onTogglePause}>
+          {status === "playing" ? "Pause" : "Resume"}
+        </Button>
+        <Button variant="danger" onClick={onRestartClick} disabled={status !== "playing"}>
+          Restart
+        </Button>
+      </div>
+    </div>
+    <div className="flex items-center justify-end gap-2">
       <Button variant="secondary" aria-label="Undo" title="Undo" onClick={onUndo} disabled={status !== "playing" || !canUndo}>
         <UndoIcon />
       </Button>

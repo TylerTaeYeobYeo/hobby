@@ -151,7 +151,7 @@ export const BoardCell = ({
   return (
     <div
       ref={cellRef}
-      className={`w-12 h-12 flex flex-col items-center justify-center relative transition-colors duration-150 ${
+      className={`w-full h-full flex flex-col items-center justify-center relative transition-colors duration-150 ${
         isNeu || isMaterial || isCupertino || isCyberpunk
           ? ""
           : "backdrop-blur-md"
@@ -201,11 +201,17 @@ export const BoardCell = ({
         !isGiven &&
         createPortal(
           (() => {
+            const POPUP_WIDTH = 120; // 3 × w-8 + 2 × gap-1 + 2 × p-2
             const POPUP_HEIGHT = 124;
             const top =
               window.innerHeight - memoPopupRect.bottom >= POPUP_HEIGHT + 6
                 ? memoPopupRect.bottom + 6
                 : memoPopupRect.top - POPUP_HEIGHT - 6;
+            const centerX = memoPopupRect.left + memoPopupRect.width / 2;
+            const left = Math.max(
+              8,
+              Math.min(window.innerWidth - POPUP_WIDTH - 8, centerX - POPUP_WIDTH / 2),
+            );
             return (
               <>
                 <div
@@ -215,11 +221,7 @@ export const BoardCell = ({
                 <dialog
                   open
                   className={`fixed p-2 z-50 w-fit h-fit rounded-xl ${popupClass}`}
-                  style={{
-                    top,
-                    left: memoPopupRect.left + memoPopupRect.width / 2,
-                    transform: "translateX(-50%)",
-                  }}
+                  style={{ top, left }}
                 >
                   <div className="grid grid-cols-3 gap-1 w-max h-max">
                     {MEMO_NUMS.map((num) => {

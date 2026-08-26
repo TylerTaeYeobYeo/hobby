@@ -19,7 +19,7 @@ export const Leaderboard = () => {
   const isCyberpunk = theme === "cyberpunk";
 
   return (
-    <div className="flex flex-col gap-4 min-w-sm">
+    <div className="flex flex-col gap-4 w-full max-w-sm">
       <div className="flex justify-center">
         <Tabs items={LEVELS} value={difficulty} onChange={setDifficulty} />
       </div>

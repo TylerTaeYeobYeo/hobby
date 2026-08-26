@@ -63,7 +63,7 @@ export const Game = () => {
         : status;
 
   return (
-    <div className="min-w-3xl">
+    <div className="w-full">
       <GameToolbar
         timerRef={timerRef}
         startTime={startTime}

@@ -1,5 +1,6 @@
 import { useTheme } from "@core/ui";
 import type { MouseEvent } from "react";
+import { useRef } from "react";
 
 export type BoardCellProps = {
   isMine: boolean;
@@ -8,6 +9,7 @@ export type BoardCellProps = {
   isFlagged: boolean;
   isExploded?: boolean;
   disabled?: boolean;
+  flagMode?: boolean;
   onReveal: () => void;
   onToggleFlag: () => void;
   onChord: () => void;
@@ -31,6 +33,7 @@ export const BoardCell = ({
   isFlagged,
   isExploded,
   disabled,
+  flagMode,
   onReveal,
   onToggleFlag,
   onChord,
@@ -41,6 +44,9 @@ export const BoardCell = ({
   const isCupertino = theme === "cupertino";
   const isCyberpunk = theme === "cyberpunk";
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressActivated = useRef(false);
+
   const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
     if (disabled || isRevealed) return;
@@ -48,8 +54,18 @@ export const BoardCell = ({
   };
 
   const handleClick = () => {
-    if (disabled || isRevealed || isFlagged) return;
-    onReveal();
+    // skip reveal/flag if a long-press already handled this touch
+    if (longPressActivated.current) {
+      longPressActivated.current = false;
+      return;
+    }
+    if (disabled || isRevealed) return;
+    if (flagMode) {
+      onToggleFlag();
+    } else {
+      if (isFlagged) return;
+      onReveal();
+    }
   };
 
   // Chording: holding both mouse buttons on a revealed number reveals its
@@ -57,6 +73,24 @@ export const BoardCell = ({
   const handleMouseDown = (e: MouseEvent) => {
     if (disabled || !isRevealed || adjacentMines === 0) return;
     if (e.buttons === 3) onChord();
+  };
+
+  // Long-press to flag: fires after ~400 ms on touch devices
+  const handleTouchStart = () => {
+    if (disabled || isRevealed) return;
+    longPressActivated.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressActivated.current = true;
+      onToggleFlag();
+      longPressTimer.current = null;
+    }, 400);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   const bgClass = isExploded
@@ -83,12 +117,15 @@ export const BoardCell = ({
 
   return (
     <div
-      className={`w-7 h-7 flex items-center justify-center select-none text-sm font-bold cursor-pointer ${
+      className={`w-full h-full flex items-center justify-center select-none text-sm font-bold cursor-pointer ${
         disabled ? "cursor-not-allowed" : ""
       } ${bgClass}`}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={cancelLongPress}
+      onTouchEnd={cancelLongPress}
     >
       {isRevealed ? (
         isMine ? (
