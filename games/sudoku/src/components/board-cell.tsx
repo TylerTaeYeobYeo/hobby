@@ -16,7 +16,8 @@ export type BoardCellProps = {
   onChange?: (newValue: number, newMemo?: string[]) => void;
 };
 
-const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+// coarse pointer = touch device; more reliable than user-agent sniffing
+const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
 export const BoardCell = ({
   value,
