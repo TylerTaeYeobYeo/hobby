@@ -62,7 +62,7 @@ export const Board = ({
   ).join(" ");
   const displayedNumber = hintNumber ?? hoveredNumber;
 
-  const boardClass = `rounded-2xl p-1.5 overflow-hidden ${
+  const boardClass = `rounded-2xl p-1.5 overflow-hidden min-w-[278px]  ${
     isNeu
       ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
       : isMaterial

@@ -1,4 +1,5 @@
 import { useTheme } from "@core/ui";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export type NumberHintBarProps = {
   board?: number[][];
@@ -8,6 +9,8 @@ export type NumberHintBarProps = {
 };
 
 const NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const MAX_CELL = 48;
+const MIN_CELL = 28;
 
 const isNumberComplete = (board: number[][] | undefined, num: number) => {
   if (!board) return false;
@@ -32,9 +35,27 @@ export const NumberHintBar = ({
   const isCupertino = theme === "cupertino";
   const isCyberpunk = theme === "cyberpunk";
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [cellSize, setCellSize] = useState(MAX_CELL);
+
+  useLayoutEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const compute = (w: number) => {
+      console.log(w);
+
+      setCellSize(Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor(w / 9))));
+    };
+    compute(el.clientWidth);
+    const ro = new ResizeObserver(([e]) => compute(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div
-      className={`flex gap-1 mt-4 rounded-2xl p-2 ${
+      ref={wrapperRef}
+      className={`flex gap-1 mt-4 rounded-2xl p-2 max-w-120.5 w-full ${
         isNeu
           ? "bg-gray-200 shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.7)]"
           : isMaterial
@@ -77,7 +98,7 @@ export const NumberHintBar = ({
         return (
           <button
             key={num}
-            className={`flex-1 min-w-0 h-11 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
+            className={`flex-1 min-w-0 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
               isNeu
                 ? neuClasses
                 : isMaterial
@@ -88,6 +109,11 @@ export const NumberHintBar = ({
                       ? cyberpunkClasses
                       : `border backdrop-blur-md ${glassClasses}`
             }`}
+            style={{
+              height: `${cellSize}px`,
+              width: `${cellSize}px`,
+              fontSize: `${cellSize / 2}px`,
+            }}
             onMouseEnter={() => !complete && onHover?.(num)}
             onMouseLeave={() => onHover?.(null)}
             onClick={() => !complete && onClickNumber?.(num)}
