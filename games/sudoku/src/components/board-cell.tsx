@@ -179,9 +179,7 @@ export const BoardCell = ({
           }`}
           type="text"
           value={value === 0 ? "" : value}
-          // @ts-expect-error - inert is not yet in the React type definitions
-          keyboardType={isMobile ? "numeric" : undefined}
-          readOnly={isMobile}
+          inputMode={isMobile ? "none" : undefined}
           onChange={(e) => {
             const v = parseInt(e.target.value, 10);
             if (!isNaN(v) && v >= 1 && v <= 9) onChange?.(v, memo);
