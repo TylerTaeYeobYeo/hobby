@@ -169,7 +169,7 @@ export const BoardCell = ({
         </span>
       ) : (
         <input
-          style={{ width: "100%", height: "100%", textAlign: "center" }}
+          style={{ width: "100%", height: "100%", textAlign: "center", pointerEvents: isMobile ? "none" : "auto" }}
           className={`bg-transparent relative z-10 font-semibold outline-none ${
             isInvalid
               ? "text-red-500"
