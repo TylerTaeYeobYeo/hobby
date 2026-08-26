@@ -167,9 +167,22 @@ export const BoardCell = ({
         >
           {value}
         </span>
+      ) : isMobile ? (
+        // no <input> on mobile — keyboard never triggers; values come from the hint bar
+        <span
+          className={`font-semibold select-none ${
+            isInvalid
+              ? "text-red-500"
+              : isCyberpunk
+                ? "text-[#e0e0ff] font-mono"
+                : "text-gray-900"
+          }`}
+        >
+          {value === 0 ? "" : value}
+        </span>
       ) : (
         <input
-          style={{ width: "100%", height: "100%", textAlign: "center", pointerEvents: isMobile ? "none" : "auto" }}
+          style={{ width: "100%", height: "100%", textAlign: "center" }}
           className={`bg-transparent relative z-10 font-semibold outline-none ${
             isInvalid
               ? "text-red-500"
@@ -179,7 +192,6 @@ export const BoardCell = ({
           }`}
           type="text"
           value={value === 0 ? "" : value}
-          inputMode={isMobile ? "none" : undefined}
           onChange={(e) => {
             const v = parseInt(e.target.value, 10);
             if (!isNaN(v) && v >= 1 && v <= 9) onChange?.(v, memo);
