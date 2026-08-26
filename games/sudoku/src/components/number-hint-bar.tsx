@@ -41,11 +41,8 @@ export const NumberHintBar = ({
   useLayoutEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
-    const compute = (w: number) => {
-      console.log(w);
-
+    const compute = (w: number) =>
       setCellSize(Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor(w / 9))));
-    };
     compute(el.clientWidth);
     const ro = new ResizeObserver(([e]) => compute(e.contentRect.width));
     ro.observe(el);
