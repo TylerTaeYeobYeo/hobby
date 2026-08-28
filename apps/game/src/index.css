@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@source "../../../core/ui/src";
+@source "../../../games/minesweeper/src";
+@source "../../../games/sudoku/src";

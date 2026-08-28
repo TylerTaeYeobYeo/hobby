@@ -9,19 +9,34 @@
   "packageManager": "npm@11.6.2",
   "workspaces": [
     "apps/*",
+    "games/*",
     "core/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:sudoku": "turbo run dev --filter=@app/sudoku",
-    "dev:minesweeper": "turbo run dev --filter=@app/minesweeper",
+    "dev:game": "turbo run dev --filter=@app/game",
+    "dev:all": "turbo run dev",
     "build": "turbo run build",
-    "build:sudoku": "turbo run build --filter=@app/sudoku",
-    "build:minesweeper": "turbo run build --filter=@app/minesweeper",
+    "build:game": "turbo run build --filter=@app/game",
     "lint": "turbo run lint",
-    "setup": "npm install && npm run build"
+    "setup": "npm install && npm run build",
+    "build:core": "turbo run build --filter=@core/*"
   },
   "devDependencies": {
-    "turbo": "^2.10.11"
+    "@babel/core": "^7.29.7",
+    "@eslint/js": "^10.0.1",
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "turbo": "^2.10.11",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.65.0",
+    "vite": "^8.2.0"
   }
 }
