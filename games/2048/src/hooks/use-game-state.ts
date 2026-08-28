@@ -1,6 +1,12 @@
 /* eslint-disable react-hooks/refs */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   createInitialBoard,
@@ -95,21 +101,31 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
-  const finishWin = useCallback(() => {
-    timerRef.current?.pause();
-    const elapsedTime = timerRef.current?.getTime() ?? 0;
-    const { rank: earnedRank } = addHighScore(elapsedTime);
-    setFinalTime(elapsedTime);
-    setRank(earnedRank);
-    setStatus("won");
-    localStorage.removeItem(STORAGE_KEY);
-  }, [timerRef]);
+  const finishWin = useCallback(
+    (finalScore: number) => {
+      timerRef.current?.pause();
+      const elapsedTime = timerRef.current?.getTime() ?? 0;
+      const { rank: earnedRank } = addHighScore(elapsedTime, finalScore);
+      setFinalTime(elapsedTime);
+      setRank(earnedRank);
+      setStatus("won");
+      localStorage.removeItem(STORAGE_KEY);
+    },
+    [timerRef],
+  );
 
-  const finishLose = useCallback(() => {
-    timerRef.current?.pause();
-    setStatus("lost");
-    localStorage.removeItem(STORAGE_KEY);
-  }, [timerRef]);
+  const finishLose = useCallback(
+    (finalScore: number) => {
+      timerRef.current?.pause();
+      const elapsedTime = timerRef.current?.getTime() ?? 0;
+      const { rank: earnedRank } = addHighScore(elapsedTime, finalScore);
+      setFinalTime(elapsedTime);
+      setRank(earnedRank);
+      setStatus("lost");
+      localStorage.removeItem(STORAGE_KEY);
+    },
+    [timerRef],
+  );
 
   // The one entry point for applying a move — keyboard and touch input both
   // funnel through this so the two input modes can never behave differently.
@@ -121,8 +137,9 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       if (!moved) return;
 
       const spawned = spawnRandomTile(moved_board);
+      const newScore = score + gained;
       setBoard(spawned);
-      setScore((prev) => prev + gained);
+      setScore(newScore);
 
       if (status === "idle") {
         setStatus("playing");
@@ -130,12 +147,12 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       }
 
       if (hasReachedTarget(spawned)) {
-        finishWin();
+        finishWin(newScore);
       } else if (!hasAvailableMoves(spawned)) {
-        finishLose();
+        finishLose(newScore);
       }
     },
-    [board, status, timerRef, finishWin, finishLose],
+    [board, score, status, timerRef, finishWin, finishLose],
   );
 
   // Keyboard input: arrow keys / WASD.

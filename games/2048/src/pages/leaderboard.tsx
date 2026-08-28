@@ -30,7 +30,7 @@ export const Leaderboard = () => {
           scores.map((entry, index) => (
             <div
               key={`${entry.date}-${index}`}
-              className={`flex justify-between rounded-lg transition-colors py-1.5 px-3 ${
+              className={`flex justify-between items-center rounded-lg transition-colors py-1.5 px-3 ${
                 isNeu
                   ? "bg-gray-200 shadow-[3px_3px_6px_rgba(0,0,0,0.1),-3px_-3px_6px_rgba(255,255,255,0.7)]"
                   : isCyberpunk
@@ -44,7 +44,12 @@ export const Leaderboard = () => {
                 #{index + 1}
               </span>
               <span
-                className={isCyberpunk ? "text-[#00e5ff]" : "text-gray-800"}
+                className={`font-mono font-semibold ${isCyberpunk ? "text-[#00e5ff]" : "text-gray-800"}`}
+              >
+                ⭐ {entry.score}
+              </span>
+              <span
+                className={isCyberpunk ? "text-[#4a4a6a]" : "text-gray-500"}
               >
                 {formatTime(entry.time)}
               </span>

@@ -37,13 +37,15 @@ export const Game = () => {
 
       {status === "won" && (
         <p className="font-semibold text-green-700">
-          🎉 You reached 2048 in {formatTime(finalTime ?? 0)}
+          🎉 You reached 2048 with a score of {score} in{" "}
+          {formatTime(finalTime ?? 0)}
           {rank !== null ? ` — ranked #${rank}!` : "!"}
         </p>
       )}
       {status === "lost" && (
         <p className="font-semibold text-red-700">
-          💥 No more moves. Final score: {score}.
+          💥 No more moves. Final score: {score}
+          {rank !== null ? ` — ranked #${rank}!` : "."}
         </p>
       )}
     </div>

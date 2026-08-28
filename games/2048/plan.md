@@ -72,9 +72,11 @@ tile to win. No difficulty levels — one board size for everyone. Consumed by
 - [x] `touchmove` calls `preventDefault()` on the board while a swipe is in
       progress so the page doesn't scroll/bounce during a swipe (mirrors the
       repo's existing mobile-friendly long-press handling in Minesweeper)
-- [x] Reaching the 2048 tile → pause timer, `addHighScore(elapsedTime)`, set
-      `finalTime`/`rank`, status `won`
-- [x] No available moves after a spawn → pause timer, status `lost`
+- [x] Reaching the 2048 tile → pause timer, `addHighScore(elapsedTime,
+finalScore)`, set `finalTime`/`rank`, status `won`
+- [x] No available moves after a spawn → pause timer, `addHighScore(elapsedTime,
+finalScore)`, set `finalTime`/`rank`, status `lost` (a lost game still
+      submits its score to the leaderboard, not just a win)
 - [x] Reset regenerates a fresh board (status → `idle`, score → 0, timer → 0)
 - [x] Save writes `{ board, score, elapsedTime }` as plain JSON to
       `localStorage` (no XOR obfuscation needed — unlike Minesweeper, there's no
@@ -90,16 +92,14 @@ tile to win. No difficulty levels — one board size for everyone. Consumed by
 - [x] `src/pages/game.tsx` — renders `GameToolbar` then `Board`, plus a
       won/lost status line (won: final time + rank; lost: final score)
 - [x] `src/pages/leaderboard.tsx` — mirrors Minesweeper's leaderboard minus the
-      difficulty `Tabs`: a single ranked list of fastest times to reach 2048,
-      sourced from `getHighScores()`
+      difficulty `Tabs`: a single ranked list showing rank, score, time, and
+      date, sourced from `getHighScores()`
 
 ## 6. High scores (`src/util/highscore.ts`)
 
-- [x] Thin wrapper around `createHighScoreStore` from `@core/utility`, using a
-      single internal difficulty key (storage key `2048HighScores`,
-      `difficulties: ["classic"]`) so the shared store needs no changes; the
-      public API hides that param — `getHighScores(): HighScoreEntry[]` and
-      `addHighScore(time): { scores, rank }`
+- [x] Self-contained store (not `createHighScoreStore` from `@core/utility` —
+      superseded in section 9 once ranking needed to be score-first instead of
+      time-only, which that shared store doesn't support)
 
 ## 7. Wiring into `apps/game`
 
@@ -126,3 +126,40 @@ thumbnail: "/thumbnails/2048.svg" }` entry
       as the equivalent arrow key on desktop, swiping doesn't scroll or bounce
       the page, and small/ambiguous swipes below the threshold are ignored
       rather than misfiring a random direction
+
+## 9. Score-based leaderboard ranking (follow-up)
+
+Goal: rank the leaderboard by score first (higher is better), with elapsed
+time as the tiebreaker (lower is better) when two entries have the same
+score. A leaderboard entry is now recorded whenever the game ends, whether by
+winning (reaching 2048) or losing (no more moves), not just on a win.
+
+- [x] `src/util/highscore.ts` rewritten as a self-contained store (dropped
+      `createHighScoreStore` from `@core/utility`, since that store's ranking
+      is hardcoded ascending-by-time only and doesn't fit a score-first rule):
+      `HighScoreEntry = { time, score, date }`, `compareEntries` sorts by
+      `score` descending then `time` ascending, top 10 kept
+- [x] `getHighScores()` also sorts on read (not just on write in
+      `addHighScore`) so the displayed order is correct even if storage was
+      populated any other way
+- [x] `addHighScore(time, score)` signature takes both values and returns
+      `{ scores, rank }` computed from the new comparator
+- [x] `use-game-state.ts`: `handleMove` computes the post-move score
+      synchronously (`const newScore = score + gained`) instead of a
+      functional `setScore` update, so the exact final score is available to
+      pass into `finishWin`/`finishLose` in the same call
+- [x] `finishWin(finalScore)` and `finishLose(finalScore)` both call
+      `addHighScore(elapsedTime, finalScore)` and store the returned `rank` —
+      losing now also submits a leaderboard entry, matching "when the game
+      ends" rather than only on a win
+- [x] `pages/game.tsx` win message includes the final score; loss message now
+      also shows `rank` when the score made the top 10
+- [x] `pages/leaderboard.tsx` row layout updated to show rank, score, time,
+      and date (score is the primary sorted column now, not time)
+- [x] `turbo run lint build --filter=@games/2048 --filter=@app/game` passes
+      cleanly
+- [x] Verified in-browser: seeded four scores with a tie (same score,
+      different times) and confirmed sort order is score descending with the
+      faster time ranked above the slower one on a tie; played a real game to
+      a win and confirmed the win message shows score + time + rank and the
+      entry appears correctly ranked on the leaderboard
