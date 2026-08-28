@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import { App } from "./App.tsx";
-import { MinesweeperPage, SudokuPage } from "./pages/game-page.tsx";
+import { Game2048Page, MinesweeperPage, SudokuPage } from "./pages/game-page.tsx";
 import { Home } from "./pages/home.tsx";
 
 import "./index.css";
@@ -17,6 +17,7 @@ const router = createBrowserRouter([
       { index: true, Component: Home },
       { path: "minesweeper/*", Component: MinesweeperPage },
       { path: "sudoku/*", Component: SudokuPage },
+      { path: "2048/*", Component: Game2048Page },
     ],
   },
 ]);

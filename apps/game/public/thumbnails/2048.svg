@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="400" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="280" fill="url(#bg)" />
+
+  <!-- 4x4 grid · 56px cells · 6px gaps · startX=79 startY=19 -->
+
+  <!-- Empty cells -->
+  <rect x="79" y="75" width="56" height="56" rx="4" fill="#334155" />
+  <rect x="217" y="75" width="56" height="56" rx="4" fill="#334155" />
+  <rect x="149" y="131" width="56" height="56" rx="4" fill="#334155" />
+  <rect x="79" y="187" width="56" height="56" rx="4" fill="#334155" />
+  <rect x="217" y="187" width="56" height="56" rx="4" fill="#334155" />
+
+  <!-- Tiles -->
+  <rect x="79" y="19" width="56" height="56" rx="4" fill="#eee4da" />
+  <text x="107" y="47" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#776e65">2</text>
+
+  <rect x="149" y="19" width="56" height="56" rx="4" fill="#ede0c8" />
+  <text x="177" y="47" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#776e65">4</text>
+
+  <rect x="217" y="19" width="56" height="56" rx="4" fill="#f59563" />
+  <text x="245" y="47" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#ffffff">16</text>
+
+  <rect x="285" y="19" width="56" height="56" rx="4" fill="#f65e3b" />
+  <text x="313" y="47" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#ffffff">64</text>
+
+  <rect x="149" y="75" width="56" height="56" rx="4" fill="#f2b179" />
+  <text x="177" y="103" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#ffffff">8</text>
+
+  <rect x="285" y="75" width="56" height="56" rx="4" fill="#edcf72" />
+  <text x="313" y="103" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="22"
+    font-weight="bold" fill="#ffffff">128</text>
+
+  <rect x="79" y="131" width="56" height="56" rx="4" fill="#f67c5f" />
+  <text x="107" y="159" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="24"
+    font-weight="bold" fill="#ffffff">32</text>
+
+  <rect x="217" y="131" width="56" height="56" rx="4" fill="#edcc61" />
+  <text x="245" y="159" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="22"
+    font-weight="bold" fill="#ffffff">256</text>
+
+  <rect x="285" y="131" width="56" height="56" rx="4" fill="#edc850" />
+  <text x="313" y="159" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="22"
+    font-weight="bold" fill="#ffffff">512</text>
+
+  <rect x="149" y="187" width="56" height="56" rx="4" fill="#edc53f" />
+  <text x="177" y="215" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="18"
+    font-weight="bold" fill="#ffffff">1024</text>
+
+  <rect x="285" y="187" width="56" height="56" rx="4" fill="#edc22e" />
+  <text x="313" y="215" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="18"
+    font-weight="bold" fill="#ffffff">2048</text>
+</svg>

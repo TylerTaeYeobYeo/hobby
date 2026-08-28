@@ -15,4 +15,9 @@ export const GAMES: Game[] = [
     title: "Sudoku",
     thumbnail: "/thumbnails/sudoku.svg",
   },
+  {
+    id: "2048",
+    title: "2048",
+    thumbnail: "/thumbnails/2048.svg",
+  },
 ];
