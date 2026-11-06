@@ -102,8 +102,27 @@ const solve = (grid: number[][]): boolean => {
   return true;
 };
 
-export const isBoardSolvable = (board: number[][]): boolean =>
-  solve(board.map((row) => [...row]));
+export const isBoardSolvable = (board: number[][]): boolean => {
+  // The backtracking solver below only fills empty cells; it never
+  // re-checks pre-existing (non-zero) values. Reject boards whose given
+  // entries already conflict with each other in a row, column, or box.
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const v = board[r]?.[c];
+      if (v === undefined || v === 0) continue;
+      for (let i = 0; i < 9; i++) {
+        if (i !== c && board[r][i] === v) return false;
+        if (i !== r && board[i][c] === v) return false;
+      }
+      const boxR = Math.floor(r / 3) * 3;
+      const boxC = Math.floor(c / 3) * 3;
+      for (let br = boxR; br < boxR + 3; br++)
+        for (let bc = boxC; bc < boxC + 3; bc++)
+          if ((br !== r || bc !== c) && board[br][bc] === v) return false;
+    }
+  }
+  return solve(board.map((row) => [...row]));
+};
 
 export const shouldHighlightCell = (
   board: number[][],

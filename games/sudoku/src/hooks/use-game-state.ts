@@ -66,6 +66,11 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
 
   const isNew = searchParams.get("isNew") ?? true;
   const startTimeRef = useRef<number>(0);
+  // Tracks the board as it stands right now, including state updates queued
+  // earlier in the same batch. The render-closure `gameState` is stale
+  // during batched updates, so completion / game-over checks must read
+  // this ref instead.
+  const boardRef = useRef<number[][]>(gameState.board);
   const boardContainerRef = useRef<HTMLDivElement>(null);
   const undoStackRef = useRef<HistoryAction[]>([]);
   const redoStackRef = useRef<HistoryAction[]>([]);
@@ -82,6 +87,7 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     const initNew = (level: Level) => {
       const generated = generateSudoku(level);
       startTimeRef.current = 0;
+      boardRef.current = generated.board;
       setGameState({
         board: generated.board,
         solution: generated.solution,
@@ -102,6 +108,7 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
           const saved = JSON.parse(raw);
           const level: Level = saved.difficulty ?? "medium";
           setDifficulty(level);
+          boardRef.current = saved.board;
           setGameState({
             board: saved.board,
             solution: saved.solution,
@@ -130,47 +137,58 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
   ) => {
     if (gameState.given[row]?.[col]) return;
 
-    setGameState((prev) => {
-      const prevValue = prev.board[row][col];
-      const prevMemo = prev.memo[row][col];
-      const resolvedMemo = newMemo ?? prevMemo;
+    const prevValue = gameState.board[row]?.[col] ?? 0;
+    const prevMemo = gameState.memo[row]?.[col] ?? [];
+    const resolvedMemo = newMemo ?? prevMemo;
 
-      const newBoard = prev.board.map((r, ri) =>
-        r.map((c, ci) => (ri === row && ci === col ? newValue : c)),
-      );
-      const newMemoGrid = prev.memo.map((r, ri) =>
-        r.map((m, ci) => (ri === row && ci === col ? resolvedMemo : m)),
-      );
+    if (!skipHistory) {
+      undoStackRef.current.push({
+        before: { row, col, value: prevValue, memo: prevMemo },
+        after: { row, col, value: newValue, memo: resolvedMemo },
+      });
+      if (undoStackRef.current.length > MAX_HISTORY) undoStackRef.current.shift();
+      redoStackRef.current = [];
+      setHistoryVersion((v) => v + 1);
+    }
 
-      if (!skipHistory) {
-        undoStackRef.current.push({
-          before: { row, col, value: prevValue, memo: prevMemo },
-          after: { row, col, value: newValue, memo: resolvedMemo },
-        });
-        if (undoStackRef.current.length > MAX_HISTORY) undoStackRef.current.shift();
-        redoStackRef.current = [];
-        setHistoryVersion((v) => v + 1);
-      }
+    // Apply the move to the live board ref so completion / game-over
+    // detection always sees the latest board, even when several updates
+    // are queued in the same batch (the render closure is stale then).
+    boardRef.current = boardRef.current.map((r, ri) =>
+      r.map((c, ci) => (ri === row && ci === col ? newValue : c)),
+    );
 
-      if (!hasCompletedRef.current && isBoardComplete(newBoard)) {
-        hasCompletedRef.current = true;
+    // Side effects stay OUTSIDE the state updater: React StrictMode
+    // double-invokes updaters in development, so the guards below (the
+    // completion flag, the dialog flag) make each side effect run exactly
+    // once per move — e.g. the high score is recorded only once.
+    if (!hasCompletedRef.current && isBoardComplete(boardRef.current)) {
+      hasCompletedRef.current = true;
+      timerRef.current?.pause();
+      const time = timerRef.current?.getTime() ?? 0;
+      const { rank: earnedRank } = addHighScore(difficulty, time);
+      setFinalTime(time);
+      setRank(earnedRank);
+      setStatus("completed");
+      localStorage.removeItem("sudokuGameState");
+    } else if (newValue !== 0 && !hasCompletedRef.current && !showGameOverDialog) {
+      const newInvalid = computeInvalidCells(boardRef.current, gameState.given);
+      if (newInvalid.some((r) => r.some((v) => v)) || !isBoardSolvable(boardRef.current)) {
         timerRef.current?.pause();
-        const time = timerRef.current?.getTime() ?? 0;
-        const { rank: earnedRank } = addHighScore(difficulty, time);
-        setFinalTime(time);
-        setRank(earnedRank);
-        setStatus("completed");
-        localStorage.removeItem("sudokuGameState");
-      } else if (newValue !== 0 && !hasCompletedRef.current) {
-        const newInvalid = computeInvalidCells(newBoard, prev.given);
-        if (newInvalid.some((r) => r.some((v) => v)) || !isBoardSolvable(newBoard)) {
-          timerRef.current?.pause();
-          setShowGameOverDialog(true);
-        }
+        setShowGameOverDialog(true);
       }
+    }
 
-      return { ...prev, board: newBoard, memo: newMemoGrid };
-    });
+    // Functional updater: the state write must compose with any earlier
+    // update queued in the same batch, or an earlier move in the batch is
+    // silently overwritten (lost update).
+    setGameState((prev) => ({
+      ...prev,
+      board: boardRef.current,
+      memo: prev.memo.map((r, ri) =>
+        r.map((m, ci) => (ri === row && ci === col ? resolvedMemo : m)),
+      ),
+    }));
   };
 
   const handleUndo = () => {
@@ -190,11 +208,13 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
   };
 
   const handleRestart = () => {
+    const clearedBoard = boardRef.current.map((row, ri) =>
+      gameState.given[ri].map((isGiven, ci) => (isGiven ? row[ci] : 0)),
+    );
+    boardRef.current = clearedBoard;
     setGameState((prev) => ({
       ...prev,
-      board: prev.given.map((row, ri) =>
-        row.map((isGiven, ci) => (isGiven ? prev.board[ri][ci] : 0)),
-      ),
+      board: clearedBoard,
       memo: emptyMemo(),
     }));
     undoStackRef.current = [];
@@ -256,7 +276,12 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
   useEffect(() => {
     if (!hintModeNumber) return;
     const onOutsideClick = (e: MouseEvent) => {
-      if (boardContainerRef.current && !boardContainerRef.current.contains(e.target as Node)) {
+      const target = e.target;
+      // Clicks on the number bar itself must not clear hint mode, otherwise
+      // tapping the active number (toggle-off) is impossible: the capture
+      // listener below would null the mode before the button's onClick runs.
+      if (target instanceof Element && target.closest("[data-hint-bar]")) return;
+      if (boardContainerRef.current && !boardContainerRef.current.contains(target as Node)) {
         setHintModeNumber(null);
       }
     };
