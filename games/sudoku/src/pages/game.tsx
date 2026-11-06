@@ -122,6 +122,7 @@ export const Game = () => {
       </div>
 
       <div
+        data-hint-bar=""
         className={`flex flex-col items-center gap-2 ${boardStatus !== "playing" ? "invisible" : ""}`}
       >
         <NumberHintBar
@@ -147,6 +148,7 @@ export const Game = () => {
         <div className="flex gap-2">
           <Button
             variant="secondary"
+            data-testid="clear-cell"
             onClick={() => {
               if (!selected || !selectedCell || selectedCell.isGiven) return;
               handleCellChange(

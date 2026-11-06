@@ -57,7 +57,11 @@ export const Board = ({ board }: BoardProps) => {
         }}
       >
         {board.map((row, r) =>
-          row.map((value, c) => <Tile key={`${r}-${c}`} value={value} />),
+          row.map((value, c) => (
+            <div key={`${r}-${c}`} data-testid={`tile-${r}-${c}`} data-value={value}>
+              <Tile value={value} />
+            </div>
+          )),
         )}
       </div>
     </div>

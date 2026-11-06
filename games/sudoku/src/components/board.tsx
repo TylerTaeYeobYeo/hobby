@@ -98,6 +98,8 @@ export const Board = ({
             row?.map((cell, colIndex) => (
               <div
                 key={`${rowIndex}-${colIndex}`}
+                data-testid={`cell-${rowIndex}-${colIndex}`}
+                data-value={cell}
                 style={{ gridColumn: trackPosition(colIndex), gridRow: trackPosition(rowIndex) }}
               >
                 <BoardCell

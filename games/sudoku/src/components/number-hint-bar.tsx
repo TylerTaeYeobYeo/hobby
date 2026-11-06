@@ -95,6 +95,7 @@ export const NumberHintBar = ({
         return (
           <button
             key={num}
+            data-testid={`number-${num}`}
             className={`flex-1 min-w-0 rounded-lg flex items-center justify-center font-semibold transition-all duration-150 ${
               isNeu
                 ? neuClasses

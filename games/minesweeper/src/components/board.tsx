@@ -75,8 +75,14 @@ export const Board = ({
       >
         {Array.from({ length: rows }, (_, row) =>
           Array.from({ length: cols }, (_, col) => (
-            <BoardCell
+            <div
               key={`${row}-${col}`}
+              data-testid={`cell-${row}-${col}`}
+              data-state={
+                revealed[row]?.[col] ? "revealed" : flagged[row]?.[col] ? "flagged" : "hidden"
+              }
+            >
+            <BoardCell
               isMine={grid?.[row]?.[col]?.isMine ?? false}
               adjacentMines={grid?.[row]?.[col]?.adjacentMines ?? 0}
               isRevealed={revealed[row]?.[col] ?? false}
@@ -88,6 +94,7 @@ export const Board = ({
               onToggleFlag={() => onToggleFlag(row, col)}
               onChord={() => onChord(row, col)}
             />
+            </div>
           )),
       )}
       </div>

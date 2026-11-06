@@ -283,6 +283,7 @@ export const BoardCell = ({
                       return (
                         <button
                           key={num}
+                          data-testid={`memo-${num}`}
                           className={`rounded-md w-8 h-8 flex items-center justify-center font-medium text-gray-800 transition-colors cursor-pointer ${memoButtonClass(sel)}`}
                           onClick={() => {
                             const newMemo = sel
