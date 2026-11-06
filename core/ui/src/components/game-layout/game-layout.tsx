@@ -16,7 +16,7 @@ export const GameLayout: FC<GameLayoutProps> = ({ title, children }) => {
 
   return (
     <main
-      className={`relative min-h-screen w-screen overflow-x-hidden ${
+      className={`relative min-h-screen w-full overflow-x-hidden ${
         isNeu
           ? "bg-gray-200"
           : isMaterial
@@ -61,7 +61,7 @@ export const GameLayout: FC<GameLayoutProps> = ({ title, children }) => {
           }
         >
           <h1
-            className={`text-4xl font-bold drop-shadow-sm ${
+            className={`text-3xl sm:text-4xl font-bold drop-shadow-sm ${
               isCyberpunk
                 ? "text-[#ff2d78] font-mono tracking-wider [text-shadow:0_0_20px_rgba(255,45,120,0.6)]"
                 : "text-gray-800"

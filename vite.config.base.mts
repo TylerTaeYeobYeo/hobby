@@ -11,6 +11,8 @@ export function createViteConfig(options: { port?: number } = {}) {
       tailwindcss(),
     ],
     build: { outDir: "dist" },
-    server: { port: options.port },
+    // host: true exposes the dev server on the LAN so phones on the same
+    // network can open it directly (URL is printed by `vite` on startup).
+    server: { port: options.port, host: true },
   });
 }

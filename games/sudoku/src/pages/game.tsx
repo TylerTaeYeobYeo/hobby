@@ -62,6 +62,13 @@ export const Game = () => {
         ? "playing"
         : status;
 
+  const selectedCell = selected
+    ? {
+        isGiven: gameState.given[selected.row]?.[selected.col] ?? false,
+        value: gameState.board[selected.row]?.[selected.col] ?? 0,
+      }
+    : null;
+
   return (
     <div className="w-full">
       <GameToolbar
@@ -121,17 +128,51 @@ export const Game = () => {
           board={gameState.board}
           activeNumber={hintModeNumber}
           onHover={setHoveredNumber}
-          onClickNumber={(num) =>
-            setHintModeNumber((prev) => (prev === num ? null : num))
-          }
+          onClickNumber={(num) => {
+            // Mobile-first input: tapping a number fills the selected cell
+            // directly (hint mode stays active for the next cell); otherwise
+            // fall back to the desktop-style highlight-then-tap flow.
+            if (selected && !selectedCell?.isGiven) {
+              handleCellChange(
+                selected.row,
+                selected.col,
+                num,
+                gameState.memo[selected.row]?.[selected.col],
+              );
+              return;
+            }
+            setHintModeNumber((prev) => (prev === num ? null : num));
+          }}
         />
-        <Button
-          variant="secondary"
-          onClick={handleHint}
-          disabled={status !== "playing" || hintCoins <= 0}
-        >
-          💡 Hint ({hintCoins})
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (!selected || !selectedCell || selectedCell.isGiven) return;
+              handleCellChange(
+                selected.row,
+                selected.col,
+                0,
+                gameState.memo[selected.row]?.[selected.col],
+              );
+            }}
+            disabled={
+              status !== "playing" ||
+              !selected ||
+              !!selectedCell?.isGiven ||
+              (selectedCell?.value ?? 0) === 0
+            }
+          >
+            🧹 Clear
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleHint}
+            disabled={status !== "playing" || hintCoins <= 0}
+          >
+            💡 Hint ({hintCoins})
+          </Button>
+        </div>
       </div>
 
       <RestartDialog

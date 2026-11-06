@@ -38,9 +38,9 @@ export const Board = ({ board }: BoardProps) => {
   }, []);
 
   return (
-    <div ref={wrapperRef} className="w-full touch-none">
+    <div ref={wrapperRef} className="w-full touch-none overflow-x-auto">
       <div
-        className={`rounded-2xl p-1.5 gap-px overflow-hidden ${
+        className={`w-fit mx-auto rounded-2xl p-1.5 gap-px overflow-hidden ${
           isNeu
             ? "bg-gray-200 shadow-[12px_12px_24px_rgba(0,0,0,0.2),-12px_-12px_24px_rgba(255,255,255,0.7)]"
             : isMaterial

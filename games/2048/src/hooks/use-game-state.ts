@@ -176,10 +176,6 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       const t = e.touches[0];
       touchStart.current = { x: t.clientX, y: t.clientY };
     };
-    const onTouchMove = (e: TouchEvent) => {
-      // prevent page scroll/bounce while a swipe is in progress
-      if (touchStart.current) e.preventDefault();
-    };
     const onTouchEnd = (e: TouchEvent) => {
       const start = touchStart.current;
       touchStart.current = null;
@@ -197,12 +193,12 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       handleMove(direction);
     };
 
+    // Note: no touchmove preventDefault — the board itself sets `touch-action: none`,
+    // so swipes on it never scroll the page, while touches elsewhere can still scroll.
     window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd);
     return () => {
       window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
     };
   }, [handleMove]);

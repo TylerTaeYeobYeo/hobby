@@ -38,6 +38,9 @@ export const BoardCell = ({
     width: number;
   } | null>(null);
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressActivated = useRef(false);
+
   const { theme } = useTheme();
   const isNeu = theme === "neumorphism";
   const isMaterial = theme === "material";
@@ -94,15 +97,10 @@ export const BoardCell = ({
                   ? "bg-sky-300/50 border border-sky-900/25"
                   : "bg-white/25 border border-black/15 hover:bg-white/40 hover:border-black/25";
 
-  const handleClick = () => {
-    onSelect?.();
-    if (hintNumber && !isGiven && value === 0) onChange?.(hintNumber, memo);
-  };
-
-  const handleRightClick = (e: MouseEvent) => {
-    e.preventDefault();
+  const openMemoPopup = () => {
     if (isGiven) return;
     if (hintNumber && value === 0) {
+      // Quick memo: with a hint number active, toggle that number directly
       const newMemo = memo?.includes(hintNumber.toString())
         ? memo.filter((m) => m !== hintNumber.toString())
         : [...(memo ?? []), hintNumber.toString()];
@@ -117,6 +115,40 @@ export const BoardCell = ({
         left: rect.left,
         width: rect.width,
       });
+  };
+
+  const handleRightClick = (e: MouseEvent) => {
+    e.preventDefault();
+    openMemoPopup();
+  };
+
+  // Long-press (~400 ms) opens the memo popup on touch devices, mirroring the
+  // desktop right-click so mobile players get the same capability.
+  const handleTouchStart = () => {
+    if (isGiven) return;
+    longPressActivated.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressActivated.current = true;
+      openMemoPopup();
+      longPressTimer.current = null;
+    }, 400);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleClick = () => {
+    // skip the follow-up click of a long-press; the popup already handled it
+    if (longPressActivated.current) {
+      longPressActivated.current = false;
+      return;
+    }
+    onSelect?.();
+    if (hintNumber && !isGiven && value === 0) onChange?.(hintNumber, memo);
   };
 
   const memoButtonClass = (selected: boolean) => {
@@ -154,13 +186,16 @@ export const BoardCell = ({
   return (
     <div
       ref={cellRef}
-      className={`w-full h-full flex flex-col items-center justify-center relative transition-colors duration-150 ${
+      className={`w-full h-full flex flex-col items-center justify-center relative select-none transition-colors duration-150 ${
         isNeu || isMaterial || isCupertino || isCyberpunk
           ? ""
           : "backdrop-blur-md"
       } ${bgClass}`}
       onContextMenu={handleRightClick}
       onClick={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={cancelLongPress}
+      onTouchEnd={cancelLongPress}
     >
       {isGiven ? (
         <span

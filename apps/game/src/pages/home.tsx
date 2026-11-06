@@ -68,7 +68,7 @@ export const Home = () => {
   const { theme } = useTheme();
 
   return (
-    <main className={`relative min-h-screen w-screen overflow-x-hidden ${bgClasses[theme]}`}>
+    <main className={`relative min-h-screen w-full overflow-x-hidden ${bgClasses[theme]}`}>
       {theme === "glass" && (
         <>
           <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-purple-400/40 blur-3xl pointer-events-none" />
