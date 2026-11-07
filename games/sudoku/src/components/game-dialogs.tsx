@@ -91,28 +91,6 @@ export const LeaveDialog = ({
   />
 );
 
-export const GameOverDialog = ({
-  open,
-  onDismiss,
-  onUndo,
-  onRestart,
-}: {
-  open: boolean;
-  onDismiss: () => void;
-  onUndo: () => void;
-  onRestart: () => void;
-}) => (
-  <Dialog open={open} onClose={onDismiss} title="Game Over">
-    <div className="flex flex-col gap-3 min-w-56">
-      <p>The board can no longer be completed with the current values.</p>
-      <div className="flex gap-2 justify-end">
-        <Button variant="secondary" onClick={onUndo}>Undo</Button>
-        <Button variant="danger" onClick={onRestart}>Restart</Button>
-      </div>
-    </div>
-  </Dialog>
-);
-
 export const CongratulationsDialog = ({
   open,
   finalTime,

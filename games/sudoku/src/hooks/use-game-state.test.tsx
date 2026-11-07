@@ -42,6 +42,32 @@ const firstEmptyCell = (
   throw new Error("test setup error: puzzle has no empty cell");
 };
 
+// A non-given empty cell plus a value with no row/column/box conflict —
+// placing it can never create a direct conflict.
+const findLegalMove = (
+  board: number[][],
+  given: boolean[][],
+  avoid?: { r: number; c: number },
+): { r: number; c: number; v: number } => {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (board[r][c] !== 0 || given[r][c]) continue;
+      if (avoid && avoid.r === r && avoid.c === c) continue;
+      const used = new Set<number>();
+      for (let i = 0; i < 9; i++) {
+        used.add(board[r][i]);
+        used.add(board[i][c]);
+      }
+      const br = Math.floor(r / 3) * 3;
+      const bc = Math.floor(c / 3) * 3;
+      for (let i = br; i < br + 3; i++)
+        for (let j = bc; j < bc + 3; j++) used.add(board[i][j]);
+      for (let v = 1; v <= 9; v++) if (!used.has(v)) return { r, c, v };
+    }
+  }
+  throw new Error("test setup error: no legal move found");
+};
+
 describe("useGameState (sudoku)", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -153,17 +179,17 @@ describe("useGameState (sudoku)", () => {
     expect(localStorage.getItem("sudokuGameState")).toBeNull();
   });
 
-  it("opens the game-over dialog when a move duplicates a row value", () => {
+  it("flags an invalid move in red without ending the game", () => {
     const { result } = renderSudoku();
     const { board } = result.current.gameState;
 
-    // Find a row with at least two filled cells and an empty cell in it;
-    // copying an existing row value into the empty cell is always invalid.
+    // Find a row holding at least one value and an empty cell; copying the
+    // row's value into the empty cell always duplicates the row.
     let target: { r: number; c: number; v: number } | null = null;
     outer: for (let r = 0; r < 9; r++) {
       const filled = board[r].filter((v) => v !== 0);
       const empty = board[r].findIndex((v) => v === 0);
-      if (filled.length >= 2 && empty !== -1) {
+      if (filled.length >= 1 && empty !== -1) {
         target = { r, c: empty, v: filled[0] };
         break outer;
       }
@@ -172,7 +198,38 @@ describe("useGameState (sudoku)", () => {
 
     act(() => result.current.handleCellChange(target!.r, target!.c, target!.v));
 
-    expect(result.current.showGameOverDialog).toBe(true);
+    // The conflict is flagged for the red highlight...
+    expect(result.current.invalidCells[target!.r][target!.c]).toBe(true);
+    // ...but the game keeps playing (no game over, no pause).
+    expect(result.current.status).toBe("playing");
+  });
+
+  it("keeps accepting legal moves after an invalid one", () => {
+    const { result } = renderSudoku();
+    const { board, given } = result.current.gameState;
+
+    // Make an invalid move (duplicate a row value) — previously this
+    // poisoned the board: every later move, legal or not, re-triggered
+    // the game-over dialog because the check scanned the whole board.
+    let target: { r: number; c: number; v: number } | null = null;
+    outer: for (let r = 0; r < 9; r++) {
+      const filled = board[r].filter((v) => v !== 0);
+      const empty = board[r].findIndex((v) => v === 0);
+      if (filled.length >= 1 && empty !== -1) {
+        target = { r, c: empty, v: filled[0] };
+        break outer;
+      }
+    }
+    expect(target).not.toBeNull();
+    act(() => result.current.handleCellChange(target!.r, target!.c, target!.v));
+
+    // A fully legal move elsewhere must still be accepted normally.
+    const legal = findLegalMove(result.current.gameState.board, given, target);
+    act(() => result.current.handleCellChange(legal.r, legal.c, legal.v));
+
+    expect(result.current.gameState.board[legal.r][legal.c]).toBe(legal.v);
+    expect(result.current.invalidCells[legal.r][legal.c]).toBe(false);
+    expect(result.current.status).toBe("playing");
   });
 
   it("keeps hint mode when the click target is the number bar", () => {

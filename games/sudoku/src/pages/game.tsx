@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { Board } from "../components/board";
 import {
     CongratulationsDialog,
-    GameOverDialog,
     LeaveDialog,
     RestartDialog,
     SaveDialog,
@@ -37,8 +36,6 @@ export const Game = () => {
     setShowSaveDialog,
     showBackDialog,
     setShowBackDialog,
-    showGameOverDialog,
-    setShowGameOverDialog,
     invalidCells,
     canUndo,
     canRedo,
@@ -56,7 +53,7 @@ export const Game = () => {
   if (isLoading) return <div>Loading...</div>;
 
   const boardStatus =
-    showRestartDialog || showBackDialog || showGameOverDialog
+    showRestartDialog || showBackDialog
       ? "paused"
       : status === "completed"
         ? "playing"
@@ -201,19 +198,6 @@ export const Game = () => {
           timerRef.current?.resume();
         }}
         onConfirm={handleBackConfirm}
-      />
-      <GameOverDialog
-        open={showGameOverDialog}
-        onDismiss={() => {
-          setShowGameOverDialog(false);
-          timerRef.current?.resume();
-        }}
-        onUndo={() => {
-          setShowGameOverDialog(false);
-          handleUndo();
-          timerRef.current?.resume();
-        }}
-        onRestart={handleRestart}
       />
       <CongratulationsDialog
         open={status === "completed"}

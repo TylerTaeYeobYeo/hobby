@@ -7,7 +7,6 @@ import { generateSudoku, type Level } from "../util/sudoku-generator";
 import {
     computeInvalidCells,
     isBoardComplete,
-    isBoardSolvable,
 } from "../util/sudoku-validation";
 
 export type GameStatus = "playing" | "paused" | "completed";
@@ -61,7 +60,6 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
   const [showRestartDialog, setShowRestartDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showBackDialog, setShowBackDialog] = useState(false);
-  const [showGameOverDialog, setShowGameOverDialog] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
 
   const isNew = searchParams.get("isNew") ?? true;
@@ -151,17 +149,22 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       setHistoryVersion((v) => v + 1);
     }
 
-    // Apply the move to the live board ref so completion / game-over
-    // detection always sees the latest board, even when several updates
-    // are queued in the same batch (the render closure is stale then).
+    // Apply the move to the live board ref so completion detection always
+    // sees the latest board, even when several updates are queued in the
+    // same batch (the render closure is stale then).
     boardRef.current = boardRef.current.map((r, ri) =>
       r.map((c, ci) => (ri === row && ci === col ? newValue : c)),
     );
 
     // Side effects stay OUTSIDE the state updater: React StrictMode
-    // double-invokes updaters in development, so the guards below (the
-    // completion flag, the dialog flag) make each side effect run exactly
-    // once per move — e.g. the high score is recorded only once.
+    // double-invokes updaters in development, so the completion guard makes
+    // the high score run exactly once.
+    //
+    // An invalid move (duplicate in row/column/box) deliberately does NOT
+    // end the game: the conflicting cells are highlighted red via
+    // `invalidCells`, and the player undoes, clears, or redoes instead.
+    // Ending the game here was also fragile — it scanned the WHOLE board,
+    // so any stale conflict re-triggered game over on later legal moves.
     if (!hasCompletedRef.current && isBoardComplete(boardRef.current)) {
       hasCompletedRef.current = true;
       timerRef.current?.pause();
@@ -171,12 +174,6 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
       setRank(earnedRank);
       setStatus("completed");
       localStorage.removeItem("sudokuGameState");
-    } else if (newValue !== 0 && !hasCompletedRef.current && !showGameOverDialog) {
-      const newInvalid = computeInvalidCells(boardRef.current, gameState.given);
-      if (newInvalid.some((r) => r.some((v) => v)) || !isBoardSolvable(boardRef.current)) {
-        timerRef.current?.pause();
-        setShowGameOverDialog(true);
-      }
     }
 
     // Functional updater: the state write must compose with any earlier
@@ -224,7 +221,6 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     setHistoryVersion((v) => v + 1);
     setStatus("playing");
     setShowRestartDialog(false);
-    setShowGameOverDialog(false);
     timerRef.current?.reset();
   };
 
@@ -310,8 +306,6 @@ export const useGameState = (timerRef: React.RefObject<TimerHandle | null>) => {
     setShowSaveDialog,
     showBackDialog,
     setShowBackDialog,
-    showGameOverDialog,
-    setShowGameOverDialog,
     invalidCells,
     canUndo,
     canRedo,

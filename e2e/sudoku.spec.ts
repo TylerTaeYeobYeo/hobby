@@ -94,6 +94,48 @@ test.describe("sudoku", () => {
     await expect(target).not.toContainText("7");
   });
 
+  test("an invalid move is flagged but the game keeps playing", async ({
+    page,
+  }) => {
+    await startNewGame(page, "easy");
+
+    // Find an empty cell whose row already contains a value; duplicating
+    // that value in the same row is illegal.
+    const target = await page.evaluate(() => {
+      const val = (r: number, c: number): number =>
+        Number(
+          document
+            .querySelector(`[data-testid="cell-${r}-${c}"]`)?.getAttribute("data-value") ?? 0,
+        );
+      for (let r = 0; r < 9; r++) {
+        let empty = -1;
+        let filled = 0;
+        for (let c = 0; c < 9; c++) {
+          const v = val(r, c);
+          if (v === 0 && empty === -1) empty = c;
+          if (v !== 0 && filled === 0) filled = v;
+        }
+        if (empty !== -1 && filled !== 0) return { r, c: empty, v: filled };
+      }
+      return null;
+    });
+    expect(target).not.toBeNull();
+
+    await page.getByTestId(`cell-${target!.r}-${target!.c}`).click();
+    await page.getByTestId(`number-${target!.v}`).click();
+
+    // The value is placed and the conflicting cell is flagged red...
+    await expect(
+      page.getByTestId(`cell-${target!.r}-${target!.c}`),
+    ).toHaveAttribute("data-value", String(target!.v));
+
+    // ...but the game does NOT end: no game-over dialog appears and the
+    // number bar stays fully usable for the next move.
+    await expect(page.getByText("Game Over", { exact: true })).toHaveCount(0);
+    await expect(page.getByTestId("number-5")).toBeVisible();
+    await expect(page.getByTestId("clear-cell")).toBeEnabled();
+  });
+
   test("clears a filled cell back to empty", async ({ page }) => {
     await startNewGame(page, "easy");
 
